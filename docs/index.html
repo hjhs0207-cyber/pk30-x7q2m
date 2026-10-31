@@ -175,11 +175,43 @@ function neighborhoods(c) {
   if (!hoodCache.has(k)) hoodCache.set(k, fetchHoods(c).catch((e) => { hoodCache.delete(k); throw e; }));
   return hoodCache.get(k);
 }
+// 가운데 + 동서남북 약 600m 지점의 동네 이름을 모아요 (예: 옥수역 → 옥수, 금호 …)
 async function fetchHoods(c) {
-  const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${c.lat}&lon=${c.lng}&zoom=17&accept-language=ko`;
-  const a = (await (await fetch(url)).json()).address || {};
-  const names = [c.typed, a.quarter, a.neighbourhood, a.suburb].map(stripHood).filter((n) => n && n.length >= 2 && !/구$|시$/.test(n));
-  return [...new Set(names)].slice(0, 3);
+  const dLat = 600 / 111000, dLng = 600 / (111000 * Math.cos(c.lat * Math.PI / 180));
+  const points = [[0, 0], [dLat, 0], [-dLat, 0], [0, dLng], [0, -dLng]];
+  const names = [c.typed];
+  for (const [i, [y, x]] of points.entries()) {
+    if (i) await new Promise((r) => setTimeout(r, 1100)); // 지도 서비스 이용 규칙: 1초에 1번
+    try {
+      const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${c.lat + y}&lon=${c.lng + x}&zoom=17&accept-language=ko`;
+      const a = (await (await fetch(url)).json()).address || {};
+      names.push(a.quarter, a.neighbourhood, a.suburb);
+    } catch { if (!i) throw new Error("동네 이름 확인 실패"); }
+  }
+  return [...new Set(names.map(stripHood).filter((n) => n && n.length >= 2 && !/구$|시$/.test(n)))].slice(0, 6);
+}
+
+// 이마트24: 동네 이름으로 1km 안 매장 목록을 먼저 만들고, 재고는 매장 코드로 정확히 조회해요
+const e24Cache = new Map();
+function emart24Stores(c) {
+  const k = `${c.lat},${c.lng}`;
+  if (!e24Cache.has(k)) e24Cache.set(k, (async () => {
+    const kws = await neighborhoods(c);
+    const found = new Map(); let ok = 0, lastErr = null;
+    for (const kw of kws) {
+      try {
+        const d = await api("/api/emart24/stores", { keyword: kw, lat: c.lat, lng: c.lng, limit: 50 });
+        ok++;
+        for (const st of d.stores || []) {
+          const dd = storeDist(st, c);
+          if (dd && dd.d <= RADIUS && st.storeCode && !found.has(st.storeCode)) found.set(String(st.storeCode), { ...st, dd });
+        }
+      } catch (e) { lastErr = e; }
+    }
+    if (!ok && lastErr) throw lastErr;
+    return found;
+  })().catch((e) => { e24Cache.delete(k); throw e; }));
+  return e24Cache.get(k);
 }
 
 // ── 편의점별 재고 조회 ──
@@ -187,7 +219,7 @@ async function stock(chain, p, c) {
   const rows = [];
   const push = (s, code, qty, dd) => rows.push({ chain, code: String(code), name: s.storeName || "", qty: num(qty), d: dd.d, lat: dd.lat, lng: dd.lng, phone: s.phone || s.tel || "" });
   if (chain === "seveneleven") {
-    const kws = await neighborhoods(c);
+    const kws = (await neighborhoods(c)).slice(0, 3);
     if (!kws.length) throw new Error("동네 이름 확인 실패");
     const seen = new Set(); let ok = 0, lastErr = null;
     for (const kw of kws) {
@@ -224,19 +256,13 @@ async function stock(chain, p, c) {
     if (ns.stockItemCode && String(ns.stockItemCode) !== p.id) throw new Error("상품 불일치");
     stores = ns.stores || []; codeKey = "storeCode"; qtyKey = "stock";
   }
-  if (chain === "emart24") { // 좌표만으로는 주변 매장을 못 찾아서 동네 이름도 같이 보내요
-    const kws = await neighborhoods(c);
-    if (!kws.length) throw new Error("동네 이름 확인 실패");
-    const seen = new Set(); let ok = 0, lastErr = null;
-    for (const kw of kws) {
-      try {
-        const d = await api("/api/emart24/inventory", { pluCd: p.id, storeKeyword: kw, lat: c.lat, lng: c.lng, storeLimit: 60 });
-        ok++;
-        for (const st of d.inventory?.stores || d.stores || []) if (!seen.has(st.bizNo)) { seen.add(st.bizNo); stores.push(st); }
-      } catch (e) { lastErr = e; }
-    }
-    if (!ok && lastErr) throw lastErr;
-    codeKey = "bizNo"; qtyKey = "bizQty";
+  if (chain === "emart24") {
+    const near = await emart24Stores(c);
+    if (!near.size) return rows;
+    const d = await api("/api/emart24/inventory", { pluCd: p.id, bizNoArr: [...near.keys()].join(","), storeLimit: near.size });
+    const qty = new Map((d.inventory?.stores || d.stores || []).map((st) => [String(st.bizNo), st.bizQty]));
+    for (const [code, st] of near) push(st, code, qty.has(code) ? qty.get(code) : 0, st.dd); // 응답에 없는 매장 = 취급 안 함(없음)
+    return rows;
   }
   for (const s of stores) { const dd = storeDist(s, c); if (dd && dd.d <= RADIUS && s[codeKey]) push(s, s[codeKey], s[qtyKey], dd); }
   return rows;

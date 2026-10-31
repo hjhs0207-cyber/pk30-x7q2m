@@ -1,0 +1,932 @@
+{
+  "checkedAt": "2026-10-31T20:59:31+09:00",
+  "locations": {
+    "옥수역": {
+      "GS25": [
+        {
+          "chain": "gs25",
+          "code": "VI822",
+          "name": "옥수점",
+          "qty": 0,
+          "distanceM": 152
+        },
+        {
+          "chain": "gs25",
+          "code": "V2R46",
+          "name": "옥수상떼뷰점",
+          "qty": 0,
+          "distanceM": 505
+        },
+        {
+          "chain": "gs25",
+          "code": "VJR95",
+          "name": "금호예향점",
+          "qty": 0,
+          "distanceM": 707
+        },
+        {
+          "chain": "gs25",
+          "code": "VJT73",
+          "name": "옥수이편한점",
+          "qty": 0,
+          "distanceM": 840
+        },
+        {
+          "chain": "gs25",
+          "code": "VP905",
+          "name": "S메트로금호점",
+          "qty": 0,
+          "distanceM": 847
+        },
+        {
+          "chain": "gs25",
+          "code": "VNS26",
+          "name": "서울숲푸르지오점",
+          "qty": 0,
+          "distanceM": 852
+        },
+        {
+          "chain": "gs25",
+          "code": "V3R87",
+          "name": "금호역점",
+          "qty": 0,
+          "distanceM": 880
+        },
+        {
+          "chain": "gs25",
+          "code": "V8M24",
+          "name": "성동금남점",
+          "qty": 0,
+          "distanceM": 984
+        }
+      ],
+      "CU": [
+        {
+          "chain": "cu",
+          "code": "53003",
+          "name": "한강버스옥수점",
+          "qty": 0,
+          "distanceM": 131
+        },
+        {
+          "chain": "cu",
+          "code": "34675",
+          "name": "옥수역점",
+          "qty": 0,
+          "distanceM": 175
+        },
+        {
+          "chain": "cu",
+          "code": "24004",
+          "name": "옥수점",
+          "qty": 0,
+          "distanceM": 250
+        },
+        {
+          "chain": "cu",
+          "code": "09835",
+          "name": "옥수삼성점",
+          "qty": 0,
+          "distanceM": 422
+        },
+        {
+          "chain": "cu",
+          "code": "42641",
+          "name": "옥수극동점",
+          "qty": 0,
+          "distanceM": 547
+        },
+        {
+          "chain": "cu",
+          "code": "29138",
+          "name": "금호대우점",
+          "qty": 0,
+          "distanceM": 688
+        },
+        {
+          "chain": "cu",
+          "code": "51216",
+          "name": "서울숲푸르지오점",
+          "qty": 0,
+          "distanceM": 744
+        },
+        {
+          "chain": "cu",
+          "code": "50315",
+          "name": "옥수래미안리버젠점",
+          "qty": 0,
+          "distanceM": 746
+        },
+        {
+          "chain": "cu",
+          "code": "25491",
+          "name": "성동금호점",
+          "qty": 0,
+          "distanceM": 865
+        }
+      ],
+      "세븐일레븐": "조회 실패",
+      "이마트24": "조회 실패"
+    },
+    "공릉역": {
+      "GS25": [
+        {
+          "chain": "gs25",
+          "code": "VHN76",
+          "name": "S공릉역점",
+          "qty": 0,
+          "distanceM": 47
+        },
+        {
+          "chain": "gs25",
+          "code": "VN110",
+          "name": "공릉역점",
+          "qty": 0,
+          "distanceM": 106
+        },
+        {
+          "chain": "gs25",
+          "code": "VHR82",
+          "name": "공릉제일점",
+          "qty": 0,
+          "distanceM": 127
+        },
+        {
+          "chain": "gs25",
+          "code": "VNP26",
+          "name": "공릉영진점",
+          "qty": 0,
+          "distanceM": 176
+        },
+        {
+          "chain": "gs25",
+          "code": "V7W56",
+          "name": "공릉대성점",
+          "qty": 0,
+          "distanceM": 227
+        },
+        {
+          "chain": "gs25",
+          "code": "VMP63",
+          "name": "공릉시장점",
+          "qty": 0,
+          "distanceM": 318
+        },
+        {
+          "chain": "gs25",
+          "code": "V7Y27",
+          "name": "공릉문화점",
+          "qty": 0,
+          "distanceM": 425
+        },
+        {
+          "chain": "gs25",
+          "code": "VP757",
+          "name": "공릉타운점",
+          "qty": 0,
+          "distanceM": 488
+        },
+        {
+          "chain": "gs25",
+          "code": "V2975",
+          "name": "서울과기대점",
+          "qty": 0,
+          "distanceM": 490
+        },
+        {
+          "chain": "gs25",
+          "code": "VMB22",
+          "name": "노원공릉점",
+          "qty": 0,
+          "distanceM": 546
+        },
+        {
+          "chain": "gs25",
+          "code": "VO977",
+          "name": "월계미성점",
+          "qty": 0,
+          "distanceM": 653
+        },
+        {
+          "chain": "gs25",
+          "code": "V3W68",
+          "name": "공릉중앙점",
+          "qty": 0,
+          "distanceM": 662
+        },
+        {
+          "chain": "gs25",
+          "code": "V6W43",
+          "name": "공릉에이스점",
+          "qty": 0,
+          "distanceM": 679
+        },
+        {
+          "chain": "gs25",
+          "code": "VF914",
+          "name": "S태릉입구역점",
+          "qty": 0,
+          "distanceM": 744
+        },
+        {
+          "chain": "gs25",
+          "code": "V8Z75",
+          "name": "공릉태강점",
+          "qty": 0,
+          "distanceM": 789
+        },
+        {
+          "chain": "gs25",
+          "code": "VR095",
+          "name": "공릉원룸점",
+          "qty": 0,
+          "distanceM": 820
+        },
+        {
+          "chain": "gs25",
+          "code": "VMZ83",
+          "name": "태릉해링턴점",
+          "qty": 0,
+          "distanceM": 841
+        },
+        {
+          "chain": "gs25",
+          "code": "VW158",
+          "name": "공릉퍼스트점",
+          "qty": 0,
+          "distanceM": 915
+        },
+        {
+          "chain": "gs25",
+          "code": "VT556",
+          "name": "하계장미점",
+          "qty": 0,
+          "distanceM": 964
+        }
+      ],
+      "CU": [
+        {
+          "chain": "cu",
+          "code": "11224",
+          "name": "공릉사거리점",
+          "qty": 0,
+          "distanceM": 64
+        },
+        {
+          "chain": "cu",
+          "code": "39027",
+          "name": "공릉모아점",
+          "qty": 0,
+          "distanceM": 95
+        },
+        {
+          "chain": "cu",
+          "code": "19076",
+          "name": "공릉스타점",
+          "qty": 0,
+          "distanceM": 246
+        },
+        {
+          "chain": "cu",
+          "code": "42678",
+          "name": "공릉마중점",
+          "qty": 0,
+          "distanceM": 285
+        },
+        {
+          "chain": "cu",
+          "code": "28033",
+          "name": "공릉플러스점",
+          "qty": 0,
+          "distanceM": 348
+        },
+        {
+          "chain": "cu",
+          "code": "21315",
+          "name": "공릉과기대점",
+          "qty": 0,
+          "distanceM": 365
+        },
+        {
+          "chain": "cu",
+          "code": "55584",
+          "name": "공릉브릿지점",
+          "qty": 0,
+          "distanceM": 389
+        },
+        {
+          "chain": "cu",
+          "code": "53530",
+          "name": "공릉라이프점",
+          "qty": 0,
+          "distanceM": 419
+        },
+        {
+          "chain": "cu",
+          "code": "51630",
+          "name": "공릉행복점",
+          "qty": 0,
+          "distanceM": 478
+        },
+        {
+          "chain": "cu",
+          "code": "22797",
+          "name": "서울과기대점",
+          "qty": 0,
+          "distanceM": 543
+        },
+        {
+          "chain": "cu",
+          "code": "39744",
+          "name": "공릉철길공원점",
+          "qty": 0,
+          "distanceM": 550
+        },
+        {
+          "chain": "cu",
+          "code": "45764",
+          "name": "공릉녹주점",
+          "qty": 0,
+          "distanceM": 553
+        },
+        {
+          "chain": "cu",
+          "code": "41225",
+          "name": "공릉건설점",
+          "qty": 0,
+          "distanceM": 555
+        },
+        {
+          "chain": "cu",
+          "code": "51318",
+          "name": "월계삼호점",
+          "qty": 0,
+          "distanceM": 691
+        },
+        {
+          "chain": "cu",
+          "code": "49975",
+          "name": "공릉그랜드점",
+          "qty": 0,
+          "distanceM": 738
+        },
+        {
+          "chain": "cu",
+          "code": "22997",
+          "name": "서울과학기술대2관점",
+          "qty": 0,
+          "distanceM": 794
+        },
+        {
+          "chain": "cu",
+          "code": "30630",
+          "name": "월계서광점",
+          "qty": 0,
+          "distanceM": 804
+        },
+        {
+          "chain": "cu",
+          "code": "42340",
+          "name": "태릉역점",
+          "qty": 0,
+          "distanceM": 817
+        },
+        {
+          "chain": "cu",
+          "code": "44002",
+          "name": "태릉엠코점",
+          "qty": 0,
+          "distanceM": 837
+        },
+        {
+          "chain": "cu",
+          "code": "35932",
+          "name": "공릉화랑점",
+          "qty": 0,
+          "distanceM": 879
+        }
+      ],
+      "세븐일레븐": "조회 실패",
+      "이마트24": "조회 실패"
+    },
+    "상봉역": {
+      "GS25": [
+        {
+          "chain": "gs25",
+          "code": "VGR84",
+          "name": "S상봉역점",
+          "qty": 0,
+          "distanceM": 80
+        },
+        {
+          "chain": "gs25",
+          "code": "VMF65",
+          "name": "상봉점",
+          "qty": 0,
+          "distanceM": 113
+        },
+        {
+          "chain": "gs25",
+          "code": "VMU46",
+          "name": "상봉센트럴시티점",
+          "qty": 0,
+          "distanceM": 175
+        },
+        {
+          "chain": "gs25",
+          "code": "VJ981",
+          "name": "중랑팰리스점",
+          "qty": 0,
+          "distanceM": 230
+        },
+        {
+          "chain": "gs25",
+          "code": "VFZ63",
+          "name": "상봉보람점",
+          "qty": 0,
+          "distanceM": 257
+        },
+        {
+          "chain": "gs25",
+          "code": "VHS73",
+          "name": "상봉주한점",
+          "qty": 0,
+          "distanceM": 265
+        },
+        {
+          "chain": "gs25",
+          "code": "VR005",
+          "name": "상봉한국점",
+          "qty": 0,
+          "distanceM": 318
+        },
+        {
+          "chain": "gs25",
+          "code": "V5A98",
+          "name": "중랑상봉점",
+          "qty": 0,
+          "distanceM": 397
+        },
+        {
+          "chain": "gs25",
+          "code": "VJE66",
+          "name": "중랑월드점",
+          "qty": 0,
+          "distanceM": 415
+        },
+        {
+          "chain": "gs25",
+          "code": "VDR73",
+          "name": "중화한신점",
+          "qty": 0,
+          "distanceM": 448
+        },
+        {
+          "chain": "gs25",
+          "code": "VY107",
+          "name": "상봉우정점",
+          "qty": 0,
+          "distanceM": 449
+        },
+        {
+          "chain": "gs25",
+          "code": "VHT49",
+          "name": "중화중앙점",
+          "qty": 0,
+          "distanceM": 459
+        },
+        {
+          "chain": "gs25",
+          "code": "VNP53",
+          "name": "중화하나점",
+          "qty": 0,
+          "distanceM": 472
+        },
+        {
+          "chain": "gs25",
+          "code": "VGV64",
+          "name": "상봉중화점",
+          "qty": 0,
+          "distanceM": 489
+        },
+        {
+          "chain": "gs25",
+          "code": "V5R72",
+          "name": "상봉하나점",
+          "qty": 0,
+          "distanceM": 513
+        },
+        {
+          "chain": "gs25",
+          "code": "VS483",
+          "name": "상봉봉우점",
+          "qty": 0,
+          "distanceM": 557
+        },
+        {
+          "chain": "gs25",
+          "code": "VX602",
+          "name": "상봉사랑점",
+          "qty": 0,
+          "distanceM": 565
+        },
+        {
+          "chain": "gs25",
+          "code": "V2F54",
+          "name": "중화금성점",
+          "qty": 0,
+          "distanceM": 581
+        },
+        {
+          "chain": "gs25",
+          "code": "VT591",
+          "name": "면목수성점",
+          "qty": 0,
+          "distanceM": 618
+        },
+        {
+          "chain": "gs25",
+          "code": "VT452",
+          "name": "면목금성점",
+          "qty": 0,
+          "distanceM": 630
+        },
+        {
+          "chain": "gs25",
+          "code": "VX583",
+          "name": "중화제일점",
+          "qty": 0,
+          "distanceM": 661
+        },
+        {
+          "chain": "gs25",
+          "code": "VS322",
+          "name": "상봉동일로점",
+          "qty": 0,
+          "distanceM": 689
+        },
+        {
+          "chain": "gs25",
+          "code": "VW283",
+          "name": "상봉센터점",
+          "qty": 0,
+          "distanceM": 691
+        },
+        {
+          "chain": "gs25",
+          "code": "V2F77",
+          "name": "면목본점",
+          "qty": 0,
+          "distanceM": 696
+        },
+        {
+          "chain": "gs25",
+          "code": "VMN57",
+          "name": "S중화역점",
+          "qty": 0,
+          "distanceM": 758
+        },
+        {
+          "chain": "gs25",
+          "code": "V3H63",
+          "name": "상봉써너스점",
+          "qty": 0,
+          "distanceM": 761
+        },
+        {
+          "chain": "gs25",
+          "code": "V7G78",
+          "name": "상봉중앙본점",
+          "qty": 0,
+          "distanceM": 761
+        },
+        {
+          "chain": "gs25",
+          "code": "VE522",
+          "name": "중랑동원점",
+          "qty": 0,
+          "distanceM": 763
+        },
+        {
+          "chain": "gs25",
+          "code": "VFP29",
+          "name": "중화다미소점",
+          "qty": 0,
+          "distanceM": 766
+        },
+        {
+          "chain": "gs25",
+          "code": "VG325",
+          "name": "상봉동부점",
+          "qty": 0,
+          "distanceM": 827
+        },
+        {
+          "chain": "gs25",
+          "code": "VGQ99",
+          "name": "S면목역점",
+          "qty": 0,
+          "distanceM": 835
+        },
+        {
+          "chain": "gs25",
+          "code": "V5D89",
+          "name": "동부시장점",
+          "qty": 0,
+          "distanceM": 905
+        },
+        {
+          "chain": "gs25",
+          "code": "VNB62",
+          "name": "면목역점",
+          "qty": 0,
+          "distanceM": 921
+        },
+        {
+          "chain": "gs25",
+          "code": "VKF79",
+          "name": "상봉송림점",
+          "qty": 0,
+          "distanceM": 936
+        },
+        {
+          "chain": "gs25",
+          "code": "VU891",
+          "name": "면목지구점",
+          "qty": 0,
+          "distanceM": 958
+        },
+        {
+          "chain": "gs25",
+          "code": "V2V58",
+          "name": "중화지구점",
+          "qty": 0,
+          "distanceM": 997
+        },
+        {
+          "chain": "gs25",
+          "code": "VF714",
+          "name": "상봉뉴월드점",
+          "qty": 0,
+          "distanceM": 998
+        },
+        {
+          "chain": "gs25",
+          "code": "VNM33",
+          "name": "중랑동부점",
+          "qty": 0,
+          "distanceM": 998
+        }
+      ],
+      "CU": [
+        {
+          "chain": "cu",
+          "code": "29200",
+          "name": "상봉사랑점",
+          "qty": 0,
+          "distanceM": 128
+        },
+        {
+          "chain": "cu",
+          "code": "32670",
+          "name": "상봉점",
+          "qty": 0,
+          "distanceM": 246
+        },
+        {
+          "chain": "cu",
+          "code": "26363",
+          "name": "중랑동일로점",
+          "qty": 0,
+          "distanceM": 292
+        },
+        {
+          "chain": "cu",
+          "code": "36446",
+          "name": "중화장수점",
+          "qty": 0,
+          "distanceM": 345
+        },
+        {
+          "chain": "cu",
+          "code": "29770",
+          "name": "중화으뜸점",
+          "qty": 0,
+          "distanceM": 358
+        },
+        {
+          "chain": "cu",
+          "code": "53536",
+          "name": "중화한신점",
+          "qty": 0,
+          "distanceM": 362
+        },
+        {
+          "chain": "cu",
+          "code": "34441",
+          "name": "중랑본점",
+          "qty": 0,
+          "distanceM": 372
+        },
+        {
+          "chain": "cu",
+          "code": "15025",
+          "name": "상봉대로점",
+          "qty": 0,
+          "distanceM": 463
+        },
+        {
+          "chain": "cu",
+          "code": "54963",
+          "name": "상봉희망점",
+          "qty": 0,
+          "distanceM": 479
+        },
+        {
+          "chain": "cu",
+          "code": "52579",
+          "name": "상봉청년주택점",
+          "qty": 0,
+          "distanceM": 483
+        },
+        {
+          "chain": "cu",
+          "code": "52668",
+          "name": "중랑퍼스트점",
+          "qty": 0,
+          "distanceM": 538
+        },
+        {
+          "chain": "cu",
+          "code": "52468",
+          "name": "뉴중화중앙점",
+          "qty": 0,
+          "distanceM": 609
+        },
+        {
+          "chain": "cu",
+          "code": "41563",
+          "name": "중화일동점",
+          "qty": 0,
+          "distanceM": 625
+        },
+        {
+          "chain": "cu",
+          "code": "38727",
+          "name": "중랑우정점",
+          "qty": 0,
+          "distanceM": 626
+        },
+        {
+          "chain": "cu",
+          "code": "32754",
+          "name": "상봉솔렌시아점",
+          "qty": 0,
+          "distanceM": 640
+        },
+        {
+          "chain": "cu",
+          "code": "21569",
+          "name": "망우의리점",
+          "qty": 0,
+          "distanceM": 649
+        },
+        {
+          "chain": "cu",
+          "code": "48009",
+          "name": "상봉듀오트리스점",
+          "qty": 0,
+          "distanceM": 656
+        },
+        {
+          "chain": "cu",
+          "code": "48525",
+          "name": "중화봉화점",
+          "qty": 0,
+          "distanceM": 698
+        },
+        {
+          "chain": "cu",
+          "code": "54852",
+          "name": "중랑멍이냥이점",
+          "qty": 0,
+          "distanceM": 702
+        },
+        {
+          "chain": "cu",
+          "code": "45325",
+          "name": "상봉무지개점",
+          "qty": 0,
+          "distanceM": 722
+        },
+        {
+          "chain": "cu",
+          "code": "46682",
+          "name": "면목동부점",
+          "qty": 0,
+          "distanceM": 732
+        },
+        {
+          "chain": "cu",
+          "code": "44437",
+          "name": "혜원사거리점",
+          "qty": 0,
+          "distanceM": 788
+        },
+        {
+          "chain": "cu",
+          "code": "17865",
+          "name": "면목본동점",
+          "qty": 0,
+          "distanceM": 799
+        },
+        {
+          "chain": "cu",
+          "code": "30975",
+          "name": "망우써너스빌점",
+          "qty": 0,
+          "distanceM": 817
+        },
+        {
+          "chain": "cu",
+          "code": "41906",
+          "name": "면목주함점",
+          "qty": 0,
+          "distanceM": 821
+        },
+        {
+          "chain": "cu",
+          "code": "35882",
+          "name": "중랑이화교제일점",
+          "qty": 0,
+          "distanceM": 847
+        },
+        {
+          "chain": "cu",
+          "code": "55941",
+          "name": "뉴망우사랑점",
+          "qty": 0,
+          "distanceM": 859
+        },
+        {
+          "chain": "cu",
+          "code": "33262",
+          "name": "중화제일점",
+          "qty": 0,
+          "distanceM": 864
+        },
+        {
+          "chain": "cu",
+          "code": "52777",
+          "name": "중화역행운점",
+          "qty": 0,
+          "distanceM": 879
+        },
+        {
+          "chain": "cu",
+          "code": "35364",
+          "name": "중랑샤이닝점",
+          "qty": 0,
+          "distanceM": 886
+        },
+        {
+          "chain": "cu",
+          "code": "53246",
+          "name": "중랑베스트점",
+          "qty": 0,
+          "distanceM": 894
+        },
+        {
+          "chain": "cu",
+          "code": "47463",
+          "name": "상봉엘지점",
+          "qty": 0,
+          "distanceM": 936
+        },
+        {
+          "chain": "cu",
+          "code": "43921",
+          "name": "망우혜원점",
+          "qty": 0,
+          "distanceM": 946
+        },
+        {
+          "chain": "cu",
+          "code": "35783",
+          "name": "중랑동부점",
+          "qty": 0,
+          "distanceM": 971
+        },
+        {
+          "chain": "cu",
+          "code": "43075",
+          "name": "중화역점",
+          "qty": 0,
+          "distanceM": 977
+        }
+      ],
+      "세븐일레븐": "조회 실패",
+      "이마트24": "조회 실패"
+    }
+  }
+}

@@ -8,6 +8,7 @@ config.json의 감시 위치(반경 1km)에서 4개 편의점 재고를 확인�
 편의점 공식 API가 아니라서 예고 없이 막힐 수 있어요.
 """
 
+import hashlib
 import json
 import math
 import os
@@ -340,21 +341,38 @@ def collect(cfg, products):
 
 
 # ───────────── 3) 비교 & 메일 ─────────────
-def send_mail(subject, body):
+def send_mail(to, subject, body):
     addr, pw = os.environ.get("GMAIL_ADDRESS"), os.environ.get("GMAIL_APP_PASSWORD")
     if not addr or not pw:
-        print("[메일] GMAIL_ADDRESS / GMAIL_APP_PASSWORD가 없어서 메일을 건너뛰어요.\n" + body)
+        print(f"[메일] GMAIL_ADDRESS / GMAIL_APP_PASSWORD가 없어서 메일을 건너뛰어요. (받는 사람 {to})\n" + body)
         return
     msg = MIMEText(body, "plain", "utf-8")
-    msg["Subject"], msg["From"], msg["To"] = subject, addr, addr
+    msg["Subject"], msg["From"], msg["To"] = subject, addr, to
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=30) as s:
         s.login(addr, pw.replace(" ", ""))
         s.send_message(msg)
-    print(f"[메일] 보냄: {subject}")
+    print(f"[메일] 보냄 → {to[:3]}***: {subject}")
 
 
 def fmt_rows(rows):
     return "\n".join(f"- {CHAIN_LABEL[r['chain']]} {r['name']} : {'있음(수량 미표시)' if r['qty'] >= 999 else str(r['qty']) + '개'}" for r in rows)
+
+
+def recipients(cfg):
+    """받는 사람별 알림 위치. 현준(GMAIL_ADDRESS)은 config의 ownerLocations,
+    친구는 GitHub Secret FRIEND_EMAILS (형식: 메일:위치id,위치id;메일:위치id) — 메일 주소를 공개 코드에 안 남기려고요."""
+    out = []
+    owner = os.environ.get("GMAIL_ADDRESS")
+    all_ids = [l["id"] for l in cfg["locations"]]
+    if owner:
+        out.append((owner, cfg.get("ownerLocations") or all_ids))
+    for part in (os.environ.get("FRIEND_EMAILS") or "").split(";"):
+        if ":" in part:
+            mail, locs = part.split(":", 1)
+            ids = [x.strip() for x in locs.split(",") if x.strip() in all_ids]
+            if mail.strip() and ids:
+                out.append((mail.strip(), ids))
+    return out
 
 
 def main():
@@ -371,9 +389,10 @@ def main():
         print(f"[확장팩] 상품 코드 찾기 실패: {e}")
 
     results = collect(cfg, products)
-    first_run = "qty" not in state
     old_qty = state.get("qty", {})
     new_qty = dict(old_qty)
+    # 이미 감시 중이던 위치만 '재고 생김'을 판단해요 (새로 추가된 위치는 이번엔 현재 상태만 기록)
+    loc_started = set(state.get("locStarted") or ([l["id"] for l in cfg["locations"]] if "qty" in state else []))
     restocks = {}  # loc_id -> rows
     for loc in cfg["locations"]:
         for chain, rows in results[loc["id"]].items():
@@ -385,34 +404,43 @@ def main():
                 key = f"{chain}|{r['code']}"
                 was = old_qty.get(key, 0)
                 new_qty[key] = r["qty"]
-                if was <= 0 < r["qty"] and not first_run:
+                if was <= 0 < r["qty"] and loc["id"] in loc_started:
                     restocks.setdefault(loc["id"], []).append(r)
+    loc_started |= {l["id"] for l in cfg["locations"]}
 
     names = {l["id"]: l["name"] for l in cfg["locations"]}
     stamp = now.strftime("%m월 %d일 %H:%M")
-    if first_run:
-        parts = []
-        for loc in cfg["locations"]:
-            have = [r for rows in results[loc["id"]].values() if rows for r in rows if (r["qty"] or 0) > 0]
-            parts.append(f"[{loc['name']} 1km]\n" + (fmt_rows(have) if have else "- 지금은 재고 있는 곳이 없어요"))
-        send_mail("[포켓몬 30주년] 재고 알림을 시작했어요",
-                  f"{stamp} 기준 현재 재고예요. 앞으로 재고가 새로 생기면 알려드릴게요.\n\n" + "\n\n".join(parts))
-    elif restocks:
+    # 공개 저장소라 메일 주소 대신 알아볼 수 없게 바꾼 값(해시)만 저장해요
+    h = lambda m: hashlib.sha256((m or "").strip().lower().encode()).hexdigest()[:16]
+    owner = os.environ.get("GMAIL_ADDRESS")
+    started = set(state.get("mailStarted") or ([h(owner)] if "qty" in state and owner else []))
+    for to, loc_ids in recipients(cfg):
+        if h(to) not in started:  # 처음 받는 사람: 현재 재고를 알려주는 시작 메일
+            parts = []
+            for lid in loc_ids:
+                have = [r for rows in results[lid].values() if rows for r in rows if (r["qty"] or 0) > 0]
+                parts.append(f"[{names[lid]} 1km]\n" + (fmt_rows(have) if have else "- 지금은 재고 있는 곳이 없어요"))
+            send_mail(to, "[포켓몬 30주년] 재고 알림을 시작했어요",
+                      f"{stamp} 기준 현재 재고예요. 앞으로 재고가 새로 생기면 알려드릴게요.\n\n" + "\n\n".join(parts))
+            started.add(h(to))
+            continue
         seen, parts, total = set(), [], []
-        for lid, rows in restocks.items():
-            uniq = [r for r in rows if (r["chain"], r["code"]) not in seen]
+        for lid in loc_ids:
+            uniq = [r for r in restocks.get(lid, []) if (r["chain"], r["code"]) not in seen]
             seen.update((r["chain"], r["code"]) for r in uniq)
             if uniq:
                 parts.append(f"[{names[lid]} 1km]\n" + fmt_rows(uniq))
                 total += uniq
-        first = total[0]
-        more = f" 외 {len(total) - 1}곳" if len(total) > 1 else ""
-        send_mail(f"[포켓몬 30주년] 재고 생김: {CHAIN_LABEL[first['chain']]} {first['name']}{more}",
-                  f"{stamp} 기준 재고가 새로 생긴 매장이에요.\n\n" + "\n\n".join(parts))
-    else:
+        if total:
+            first = total[0]
+            more = f" 외 {len(total) - 1}곳" if len(total) > 1 else ""
+            send_mail(to, f"[포켓몬 30주년] 재고 생김: {CHAIN_LABEL[first['chain']]} {first['name']}{more}",
+                      f"{stamp} 기준 재고가 새로 생긴 매장이에요.\n\n" + "\n\n".join(parts))
+    if not restocks:
         print("[알림] 새로 재고가 생긴 매장이 없어요.")
 
-    state = {"qty": new_qty, "lastRun": now.isoformat(timespec="seconds")}
+    state = {"qty": new_qty, "lastRun": now.isoformat(timespec="seconds"),
+             "locStarted": sorted(loc_started), "mailStarted": sorted(started)}
     save_json(ROOT / "state.json", state)
     save_json(ROOT / "docs" / "debug.json", {"at": now.isoformat(timespec="seconds"), **DEBUG})
     save_json(ROOT / "docs" / "status.json", {

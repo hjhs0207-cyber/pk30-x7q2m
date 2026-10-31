@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-31T22:33:20+09:00",
+  "at": "2026-10-31T23:17:28+09:00",
   "sevenKeywordErrors": {
     "옥수역": [
       "옥수: HTTP 502",
@@ -9,15 +9,16 @@
       "공릉: HTTP 502"
     ],
     "상봉역": [
-      "상봉: HTTP 502"
+      "상봉: HTTP 502",
+      "망우: HTTP 502"
     ]
   },
   "stockErrors": {
     "옥수역|seveneleven": "옥수: HTTP 502; 금호: HTTP 502",
-    "공릉역|seveneleven": "공릉: HTTP 502"
+    "공릉역|seveneleven": "공릉: HTTP 502",
+    "상봉역|seveneleven": "상봉: HTTP 502; 망우: HTTP 502"
   },
   "sevenKeywordStats": {
-    "상봉역|망우": "매장 6곳 중 1km 안 3곳",
     "중동역|중동": "매장 41곳 중 1km 안 2곳",
     "중동역|상동": "매장 35곳 중 1km 안 2곳",
     "중동역|송내": "매장 11곳 중 1km 안 5곳"

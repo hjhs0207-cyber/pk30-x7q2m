@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-31T22:33:20+09:00",
+  "checkedAt": "2026-10-31T23:17:28+09:00",
   "locations": {
     "옥수역": {
       "GS25": [
@@ -976,29 +976,7 @@
           "distanceM": 977
         }
       ],
-      "세븐일레븐": [
-        {
-          "chain": "seveneleven",
-          "code": "18238",
-          "name": "망우본점",
-          "qty": 0,
-          "distanceM": 913
-        },
-        {
-          "chain": "seveneleven",
-          "code": "54200",
-          "name": "상봉망우점",
-          "qty": 0,
-          "distanceM": 722
-        },
-        {
-          "chain": "seveneleven",
-          "code": "17452",
-          "name": "상봉이노시티점",
-          "qty": 0,
-          "distanceM": 602
-        }
-      ],
+      "세븐일레븐": "조회 실패",
       "이마트24": [
         {
           "chain": "emart24",

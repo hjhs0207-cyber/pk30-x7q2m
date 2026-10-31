@@ -60,7 +60,7 @@ def api(base, path, params, retries=1):
                 break
         except Exception as e:
             err = e
-        time.sleep(3 * (attempt + 1))
+        time.sleep(4 * (attempt + 1))
     raise RuntimeError(str(err))
 
 
@@ -209,21 +209,31 @@ def stock_by_center(cfg, chain, product, loc):
 
 
 def stock_seveneleven(cfg, product, loc):
-    out = {}
+    """동네 이름별로 조회해요. 중계 서버가 502를 자주 내서 재시도하고, 일부 동네만 실패하면 나머지 결과는 살려요."""
+    out, errors = {}, []
     for kw in loc.get("sevenKeywords", []):
-        d = api(cfg["apiBase"], "/api/seveneleven/inventory", {"keyword": product["name"], "storeKeyword": kw, "storeLimit": 100})
-        if not d.get("stockAvailable", True):
-            raise RuntimeError((d.get("stockError") or {}).get("message") or "세븐일레븐 재고 확인 실패")
-        p = d.get("product") or {}
-        if product.get("fallback"):
-            if p.get("itemName") and "30주년" not in p["itemName"]:
-                raise RuntimeError(f"세븐일레븐 상품 불일치: {p.get('itemName')}")
-        elif p.get("itemCode") and str(p["itemCode"]) != product["id"]:
-            raise RuntimeError("세븐일레븐 상품 불일치")
+        try:
+            d = api(cfg["apiBase"], "/api/seveneleven/inventory",
+                    {"keyword": product["name"], "storeKeyword": kw, "storeLimit": 100}, retries=3)
+            if not d.get("stockAvailable", True):
+                raise RuntimeError((d.get("stockError") or {}).get("message") or d.get("note") or "재고 확인 실패")
+            p = d.get("product") or {}
+            if product.get("fallback"):
+                if p.get("itemName") and "30주년" not in p["itemName"]:
+                    raise RuntimeError(f"상품 불일치: {p.get('itemName')}")
+            elif p.get("itemCode") and str(p["itemCode"]) != product["id"]:
+                raise RuntimeError("상품 불일치")
+        except Exception as e:
+            errors.append(f"{kw}: {e}")
+            continue
         for s in (d.get("inventory") or {}).get("stores", []):
             dist = store_distance(s, loc, center_query=False)
             if dist is not None and dist <= cfg["radiusM"] and s.get("storeCode"):
                 out[str(s["storeCode"])] = row("seveneleven", s["storeCode"], s.get("storeName"), num(s.get("stockQuantity")), dist)
+    if errors:
+        DEBUG.setdefault("sevenKeywordErrors", {})[loc["name"]] = errors
+        if len(errors) == len(loc.get("sevenKeywords", [])):
+            raise RuntimeError("; ".join(errors))
     return list(out.values())
 
 

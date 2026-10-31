@@ -166,7 +166,11 @@ async function stock(chain, p, c) {
   if (chain === "seveneleven") {
     const kw = await neighborhood(c);
     if (!kw) throw new Error("동네 이름 확인 실패");
-    const d = await api("/api/seveneleven/inventory", { keyword: p.name, storeKeyword: kw, storeLimit: 100 });
+    let d;
+    for (let i = 0; ; i++) { // 중계 서버가 502를 자주 내서 최대 3번까지 다시 시도해요
+      try { d = await api("/api/seveneleven/inventory", { keyword: p.name, storeKeyword: kw, storeLimit: 100 }); break; }
+      catch (e) { if (i >= 2 || !/HTTP 5/.test(e.message)) throw e; await new Promise((r) => setTimeout(r, 2500 * (i + 1))); }
+    }
     if (d.stockAvailable === false) throw new Error("재고 확인 실패");
     for (const s of d.inventory?.stores || []) { const dd = storeDist(s, c, false); if (dd && dd.d <= RADIUS && s.storeCode) push(s, s.storeCode, s.stockQuantity, dd); }
     return rows;

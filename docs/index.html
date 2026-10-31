@@ -127,15 +127,22 @@ function getProducts() {
   })();
   return productsPromise;
 }
+async function searchItems(chain, kw) {
+  if (chain === "gs25") return (await api("/api/gs25/products", { keyword: kw, limit: 50 })).products?.map((p) => [p.itemCode, p.itemName || p.shortItemName]) || [];
+  if (chain === "cu") return (await api("/api/cu/inventory", { keyword: kw, size: 50, storeCheck: "false" })).inventory?.items?.map((p) => [p.itemCode, p.itemName]) || [];
+  if (chain === "seveneleven") return (await api("/api/seveneleven/products", { query: kw, size: 50 })).products?.map((p) => [p.itemCode, p.itemName]) || [];
+  return (await api("/api/emart24/products", { keyword: kw, pageSize: 50 })).products?.map((p) => [p.pluCd, p.goodsName]) || [];
+}
 async function findProduct(chain, target) {
-  let items = [];
-  if (chain === "gs25") items = (await api("/api/gs25/products", { keyword: target, limit: 30 })).products?.map((p) => [p.itemCode, p.itemName || p.shortItemName]) || [];
-  if (chain === "cu") items = (await api("/api/cu/inventory", { keyword: target, size: 30, storeCheck: "false" })).inventory?.items?.map((p) => [p.itemCode, p.itemName]) || [];
-  if (chain === "seveneleven") items = (await api("/api/seveneleven/products", { query: target, size: 30 })).products?.map((p) => [p.itemCode, p.itemName]) || [];
-  if (chain === "emart24") items = (await api("/api/emart24/products", { keyword: target, pageSize: 30 })).products?.map((p) => [p.pluCd, p.goodsName]) || [];
-  items = items.filter(([c, n]) => c && n);
-  const hit = items.find(([, n]) => matches(n, target)) || items.find(([, n]) => n.includes("30주년") && n.includes("포켓몬"));
-  return hit ? { id: String(hit[0]), name: hit[1] } : null;
+  let lastErr = null;
+  for (const kw of [target, "포켓몬카드 30주년", "포켓몬 30주년", "포켓몬카드", "포켓몬"]) {
+    let items;
+    try { items = (await searchItems(chain, kw)).filter(([c, n]) => c && n); } catch (e) { lastErr = e; continue; }
+    const hit = items.find(([, n]) => matches(n, target)) || items.find(([, n]) => n.includes("30주년") && n.includes("포켓몬"));
+    if (hit) return { id: String(hit[0]), name: hit[1] };
+  }
+  if (lastErr) throw lastErr;
+  return null;
 }
 
 // ── 세븐일레븐은 좌표 검색이 안 돼서 동네 이름이 필요해요 ──

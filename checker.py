@@ -106,27 +106,43 @@ def store_distance(s, loc, center_query=True):
 
 
 # ───────────── 1) 상품 코드 찾기 ─────────────
-def find_product(base, chain, target):
+SEARCH_FALLBACKS = ["포켓몬카드 30주년", "포켓몬 30주년", "포켓몬카드", "포켓몬"]
+
+
+def search_items(base, chain, kw):
     if chain == "gs25":
-        d = api(base, "/api/gs25/products", {"keyword": target, "limit": 30})
-        items = [(p.get("itemCode"), p.get("itemName") or p.get("shortItemName")) for p in d.get("products", [])]
-    elif chain == "cu":
-        d = api(base, "/api/cu/inventory", {"keyword": target, "size": 30, "storeCheck": "false"})
-        items = [(p.get("itemCode"), p.get("itemName")) for p in (d.get("inventory") or {}).get("items", [])]
-    elif chain == "seveneleven":
-        d = api(base, "/api/seveneleven/products", {"query": target, "size": 30})
-        items = [(p.get("itemCode"), p.get("itemName")) for p in d.get("products", [])]
-    else:
-        d = api(base, "/api/emart24/products", {"keyword": target, "pageSize": 30})
-        items = [(p.get("pluCd"), p.get("goodsName")) for p in d.get("products", [])]
-    items = [(c, n) for c, n in items if c and n]
-    DEBUG.setdefault("candidates", {})[chain] = [n for _, n in items[:8]] or {"rawKeys": list(d.keys())[:10]}
-    for code, name in items:  # 1순위: 앱 등록명과 일치
-        if name_matches(name, target):
-            return {"id": str(code), "name": name}
-    for code, name in items:  # 2순위: 30주년 포켓몬 상품
-        if "30주년" in name and "포켓몬" in name:
-            return {"id": str(code), "name": name}
+        d = api(base, "/api/gs25/products", {"keyword": kw, "limit": 50})
+        return [(p.get("itemCode"), p.get("itemName") or p.get("shortItemName")) for p in d.get("products", [])]
+    if chain == "cu":
+        d = api(base, "/api/cu/inventory", {"keyword": kw, "size": 50, "storeCheck": "false"})
+        return [(p.get("itemCode"), p.get("itemName")) for p in (d.get("inventory") or {}).get("items", [])]
+    if chain == "seveneleven":
+        d = api(base, "/api/seveneleven/products", {"query": kw, "size": 50})
+        return [(p.get("itemCode"), p.get("itemName")) for p in d.get("products", [])]
+    d = api(base, "/api/emart24/products", {"keyword": kw, "pageSize": 50})
+    return [(p.get("pluCd"), p.get("goodsName")) for p in d.get("products", [])]
+
+
+def find_product(base, chain, target):
+    """앱 등록명으로 먼저 찾고, 안 나오면 더 단순한 검색어로 다시 찾아요."""
+    errors, seen = [], []
+    for kw in [target] + SEARCH_FALLBACKS:
+        try:
+            items = [(c, n) for c, n in search_items(base, chain, kw) if c and n]
+        except Exception as e:
+            errors.append(f"{kw}: {e}")
+            continue
+        seen += [n for _, n in items[:5]]
+        for code, name in items:  # 1순위: 앱 등록명과 일치
+            if name_matches(name, target):
+                return {"id": str(code), "name": name}
+        for code, name in items:  # 2순위: 30주년 포켓몬 상품
+            if "30주년" in name and "포켓몬" in name:
+                return {"id": str(code), "name": name}
+        time.sleep(0.5)
+    DEBUG.setdefault("candidates", {})[chain] = {"seen": seen[:15], "errors": errors}
+    if errors and not seen:
+        raise RuntimeError("; ".join(errors[:2]))
     return None
 
 

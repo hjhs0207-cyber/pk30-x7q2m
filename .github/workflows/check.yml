@@ -15,7 +15,7 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -33,7 +33,7 @@ jobs:
         run: |
           git config user.name "stock-bot"
           git config user.email "stock-bot@users.noreply.github.com"
-          git add state.json docs/products.json docs/status.json docs/debug.json
+          git add state.json docs/*.json
           git diff --cached --quiet || git commit -m "재고 상태 업데이트"
           git pull --rebase --autostash || true
           git push || true

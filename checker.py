@@ -175,6 +175,64 @@ def resolve_products(cfg, cache, now):
     return out
 
 
+# ───────────── 1-2) 사이트용 다른 확장팩 상품 코드 (알림 X) ─────────────
+PACK_CACHE_HOURS = 12
+BROAD_TERMS = ["포켓몬카드", "포켓몬 카드", "포켓몬 확장팩"]
+NOT_PACK = ["슬리브", "바인더", "파일", "케이스", "띠부", "교통카드", "티머니", "캐시비", "키링", "스티커", "젤리", "빵", "음료", "과자"]
+POKEMON_BARCODES = ("8800286", "8809945", "8809581")
+
+
+def pack_candidates(items, keyword):
+    k = norm(keyword)
+    out = []
+    for code, name in items:
+        n = norm(name)
+        if k not in n or any(w in name for w in NOT_PACK):
+            continue
+        if "포켓몬" in name or str(code).startswith(POKEMON_BARCODES):
+            out.append((code, name))
+    out.sort(key=lambda x: ("박스" in x[1], len(x[1])))  # 낱팩 우선, 박스는 낱팩이 없을 때만
+    return out
+
+
+def resolve_packs(cfg, now):
+    """12시간마다 확장팩별·편의점별 상품 코드를 찾아 docs/packs.json에 저장해요."""
+    path = ROOT / "docs" / "packs.json"
+    old = load_json(path, {})
+    packs = cfg.get("extraPacks", [])
+    if old.get("at") and now - datetime.fromisoformat(old["at"]) < timedelta(hours=PACK_CACHE_HOURS) \
+            and old.get("packs") == packs:
+        return
+    base = cfg["apiBase"]
+    found = {p: {} for p in packs}
+    errors = {}
+    for chain in CHAIN_LABEL:
+        pool = []
+        for kw in BROAD_TERMS:
+            try:
+                pool += [(c, n) for c, n in search_items(base, chain, kw) if c and n]
+            except Exception as e:
+                errors[f"{chain}|{kw}"] = str(e)
+            time.sleep(0.5)
+        for pack in packs:
+            cands = pack_candidates(pool, pack)
+            if not cands:
+                try:
+                    cands = pack_candidates([(c, n) for c, n in search_items(base, chain, pack) if c and n], pack)
+                except Exception as e:
+                    errors[f"{chain}|{pack}"] = str(e)
+                time.sleep(0.5)
+            if cands:
+                code, name = cands[0]
+                found[pack][chain] = {"id": str(code), "name": name}
+            elif (old.get("items") or {}).get(pack, {}).get(chain):
+                found[pack][chain] = old["items"][pack][chain]  # 이번에 못 찾으면 예전 값 유지
+    save_json(path, {"at": now.isoformat(timespec="seconds"), "packs": packs, "items": found, "errors": errors})
+    for pack in packs:
+        got = ", ".join(f"{CHAIN_LABEL[c]}={v['name']}" for c, v in found[pack].items()) or "없음"
+        print(f"[확장팩] {pack}: {got}")
+
+
 # ───────────── 2) 재고 조회 ─────────────
 def row(chain, code, name, qty, dist):
     return {"chain": chain, "code": str(code), "name": name or "", "qty": qty, "distanceM": round(dist)}
@@ -295,6 +353,10 @@ def main():
     cache = load_json(ROOT / "docs" / "products.json", {})
     products = resolve_products(cfg, cache, now)
     save_json(ROOT / "docs" / "products.json", products)
+    try:
+        resolve_packs(cfg, now)
+    except Exception as e:
+        print(f"[확장팩] 상품 코드 찾기 실패: {e}")
 
     results = collect(cfg, products)
     first_run = "qty" not in state

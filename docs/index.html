@@ -168,46 +168,65 @@ async function findProduct(chain, target) {
 
 // ── 세븐일레븐·이마트24는 좌표만으로 주변 매장을 못 찾아서 동네 이름이 필요해요 ──
 // 지도에서 나온 동네 이름 여러 개 + 직접 검색한 이름까지 써서 빠지는 매장이 없게 해요
-const stripHood = (t) => (t || "").replace(/[0-9·.\s]+/g, "").replace(/(역|동|가|리|읍|면)$/, "");
+// 동네 이름 정리: "금호4가동" → "금호", "공릉1동" → "공릉", "옥수역" → "옥수"
+const stripHood = (t) => {
+  const raw = (t || "").replace(/\s+/g, ""), r = raw.replace(/(\d+가)?\d*(동|역|읍|면|리)$/, "").replace(/\d+가$/, "");
+  return r.length >= 2 ? r : raw;
+};
 const hoodCache = new Map();
-function neighborhoods(c) {
+function placeInfo(c) {
   const k = `${c.lat},${c.lng}`;
-  if (!hoodCache.has(k)) hoodCache.set(k, fetchHoods(c).catch((e) => { hoodCache.delete(k); throw e; }));
+  if (!hoodCache.has(k)) hoodCache.set(k, fetchPlaceInfo(c).catch((e) => { hoodCache.delete(k); throw e; }));
   return hoodCache.get(k);
 }
-// 가운데 + 동서남북 약 600m 지점의 동네 이름을 모아요 (예: 옥수역 → 옥수, 금호 …)
-async function fetchHoods(c) {
+const neighborhoods = async (c) => (await placeInfo(c)).names;
+// 가운데 + 동서남북 약 600m 지점의 동네 이름과 시·구를 모아요 (예: 옥수역 → 옥수, 금호 / 서울특별시 성동구)
+async function fetchPlaceInfo(c) {
   const dLat = 600 / 111000, dLng = 600 / (111000 * Math.cos(c.lat * Math.PI / 180));
   const points = [[0, 0], [dLat, 0], [-dLat, 0], [0, dLng], [0, -dLng]];
-  const names = [c.typed];
+  const names = [c.typed], areas = new Map();
   for (const [i, [y, x]] of points.entries()) {
     if (i) await new Promise((r) => setTimeout(r, 1100)); // 지도 서비스 이용 규칙: 1초에 1번
     try {
       const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${c.lat + y}&lon=${c.lng + x}&zoom=17&accept-language=ko`;
       const a = (await (await fetch(url)).json()).address || {};
       names.push(a.quarter, a.neighbourhood, a.suburb);
+      const area1 = a.province || a.city || "";
+      const gu = a.borough || a.city_district || a.county || "";
+      const area2 = a.province ? [a.city, gu].filter(Boolean).join(" ") : gu; // 경기도 부천시 원미구 / 서울특별시 성동구
+      if (area1 && area2) areas.set(`${area1}|${area2}`, [area1, area2]);
     } catch { if (!i) throw new Error("동네 이름 확인 실패"); }
   }
-  return [...new Set(names.map(stripHood).filter((n) => n && n.length >= 2 && !/구$|시$/.test(n)))].slice(0, 6);
+  return {
+    names: [...new Set(names.map(stripHood).filter((n) => n && n.length >= 2 && !/구$|시$/.test(n)))].slice(0, 6),
+    areas: [...areas.values()].slice(0, 3),
+  };
 }
 
-// 이마트24: 동네 이름으로 1km 안 매장 목록을 먼저 만들고, 재고는 매장 코드로 정확히 조회해요
+// 이마트24: 시·구 단위로 매장 목록을 받아 1km 안만 남기고, 재고는 매장 코드로 정확히 조회해요
 const e24Cache = new Map();
 function emart24Stores(c) {
   const k = `${c.lat},${c.lng}`;
   if (!e24Cache.has(k)) e24Cache.set(k, (async () => {
-    const kws = await neighborhoods(c);
+    const { names, areas } = await placeInfo(c);
     const found = new Map(); let ok = 0, lastErr = null;
-    for (const kw of kws) {
-      try {
-        const d = await api("/api/emart24/stores", { keyword: kw, lat: c.lat, lng: c.lng, limit: 50 });
-        ok++;
-        for (const st of d.stores || []) {
-          const dd = storeDist(st, c);
-          if (dd && dd.d <= RADIUS && st.storeCode && !found.has(st.storeCode)) found.set(String(st.storeCode), { ...st, dd });
-        }
-      } catch (e) { lastErr = e; }
+    const take = (list) => { for (const st of list || []) {
+      const dd = storeDist(st, c);
+      if (dd && dd.d <= RADIUS && st.storeCode && !found.has(String(st.storeCode))) found.set(String(st.storeCode), { ...st, dd });
+    } };
+    const search = async (params) => {
+      for (let page = 1; page <= 4; page++) { // 한 페이지 50곳, 큰 시는 여러 페이지
+        const body = await fetch(`${API}/api/emart24/stores?${new URLSearchParams({ ...params, lat: c.lat, lng: c.lng, limit: 50, page })}`).then((r) => r.json());
+        if (!body.success) throw new Error(body.error?.code || "매장 검색 실패");
+        ok++; take(body.data?.stores);
+        if (page * 50 >= (body.meta?.total || 0)) break;
+      }
+    };
+    for (const [area1, area2] of areas) {
+      try { await search({ area1, area2 }); } catch (e) { lastErr = e; }
+      if (area2.includes(" ")) { try { await search({ area1, area2: area2.split(" ")[0] }); } catch (e) { lastErr = e; } } // 경기도는 '부천시'만으로도 시도
     }
+    for (const kw of names) { try { await search({ keyword: kw }); } catch (e) { lastErr = e; } } // 보조: 동네 이름
     if (!ok && lastErr) throw lastErr;
     return found;
   })().catch((e) => { e24Cache.delete(k); throw e; }));

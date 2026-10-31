@@ -25,6 +25,7 @@ ROOT = Path(__file__).parent
 KST = timezone(timedelta(hours=9))
 CHAIN_LABEL = {"gs25": "GS25", "cu": "CU", "seveneleven": "세븐일레븐", "emart24": "이마트24"}
 PRODUCT_CACHE_HOURS = 12
+DEBUG = {}  # 조회 실패 원인을 docs/debug.json에 남겨요 (로그 대신 확인용)
 
 
 # ───────────── 공통 도구 ─────────────
@@ -119,6 +120,7 @@ def find_product(base, chain, target):
         d = api(base, "/api/emart24/products", {"keyword": target, "pageSize": 30})
         items = [(p.get("pluCd"), p.get("goodsName")) for p in d.get("products", [])]
     items = [(c, n) for c, n in items if c and n]
+    DEBUG.setdefault("candidates", {})[chain] = [n for _, n in items[:8]] or {"rawKeys": list(d.keys())[:10]}
     for code, name in items:  # 1순위: 앱 등록명과 일치
         if name_matches(name, target):
             return {"id": str(code), "name": name}
@@ -147,6 +149,7 @@ def resolve_products(cfg, cache, now):
                     out[chain] = c
         except Exception as e:
             print(f"[상품] {CHAIN_LABEL[chain]} 검색 실패: {e}")
+            DEBUG.setdefault("productErrors", {})[chain] = str(e)
             if c.get("id"):
                 out[chain] = c
     return out
@@ -215,6 +218,7 @@ def collect(cfg, products):
             except Exception as e:
                 results[loc["id"]][chain] = None
                 print(f"[재고] {loc['name']} {CHAIN_LABEL[chain]} 조회 실패: {e}")
+                DEBUG.setdefault("stockErrors", {})[f"{loc['name']}|{chain}"] = str(e)
             time.sleep(0.5)
     return results
 
@@ -290,6 +294,7 @@ def main():
 
     state = {"qty": new_qty, "lastRun": now.isoformat(timespec="seconds")}
     save_json(ROOT / "state.json", state)
+    save_json(ROOT / "docs" / "debug.json", {"at": now.isoformat(timespec="seconds"), **DEBUG})
     save_json(ROOT / "docs" / "status.json", {
         "checkedAt": now.isoformat(timespec="seconds"),
         "locations": {names[lid]: {CHAIN_LABEL[c]: ("조회 실패" if rows is None else rows) for c, rows in res.items()}

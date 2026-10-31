@@ -2,7 +2,7 @@
   "_설명": "알림용 감시 위치와 상품 설정. sevenKeywords는 세븐일레븐 매장을 찾을 때 쓰는 동네 이름이에요(세븐일레븐만 좌표 검색이 안 돼서 필요).",
   "apiBase": "https://mcp.aka.page",
   "radiusM": 1000,
-  "storeLimit": 40,
+  "storeLimit": 60,
   "locations": [
     { "id": "oksu", "name": "옥수역", "lat": 37.5406, "lng": 127.0175, "sevenKeywords": ["옥수", "금호"] },
     { "id": "gongneung", "name": "공릉역", "lat": 37.6256, "lng": 127.0729, "sevenKeywords": ["공릉"] },

@@ -159,14 +159,14 @@ async function stock(chain, p, c) {
     return rows;
   }
   let stores = [], codeKey, qtyKey;
-  if (chain === "gs25") { const d = await api("/api/gs25/inventory", { itemCode: p.id, lat: c.lat, lng: c.lng, storeLimit: 40 }); stores = d.inventory?.stores || []; codeKey = "storeCode"; qtyKey = "realStockQuantity"; }
+  if (chain === "gs25") { const d = await api("/api/gs25/inventory", { itemCode: p.id, lat: c.lat, lng: c.lng, storeLimit: 60 }); stores = d.inventory?.stores || []; codeKey = "storeCode"; qtyKey = "realStockQuantity"; }
   if (chain === "cu") {
-    const d = await api("/api/cu/inventory", { keyword: p.name, lat: c.lat, lng: c.lng, storeLimit: 40, size: 20 });
+    const d = await api("/api/cu/inventory", { keyword: p.name, lat: c.lat, lng: c.lng, storeLimit: 60, size: 20 });
     const ns = d.nearbyStores || {};
     if (ns.stockItemCode && String(ns.stockItemCode) !== p.id) throw new Error("상품 불일치");
     stores = ns.stores || []; codeKey = "storeCode"; qtyKey = "stock";
   }
-  if (chain === "emart24") { const d = await api("/api/emart24/inventory", { pluCd: p.id, lat: c.lat, lng: c.lng, storeLimit: 40 }); stores = d.stores || []; codeKey = "bizNo"; qtyKey = "bizQty"; }
+  if (chain === "emart24") { const d = await api("/api/emart24/inventory", { pluCd: p.id, lat: c.lat, lng: c.lng, storeLimit: 60 }); stores = d.stores || []; codeKey = "bizNo"; qtyKey = "bizQty"; }
   for (const s of stores) { const dd = storeDist(s, c); if (dd && dd.d <= RADIUS && s[codeKey]) push(s, s[codeKey], s[qtyKey], dd); }
   return rows;
 }

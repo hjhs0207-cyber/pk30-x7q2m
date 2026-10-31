@@ -1,0 +1,39 @@
+name: 재고 확인
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # 10분마다 (GitHub 사정으로 몇 분 늦어질 수 있어요)
+  workflow_dispatch:          # Actions 탭에서 "Run workflow"로 직접 실행 가능
+
+permissions:
+  contents: write
+
+concurrency:
+  group: stock-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 재고 확인 & 메일 알림
+        env:
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: python checker.py
+
+      - name: 상태 저장
+        run: |
+          git config user.name "stock-bot"
+          git config user.email "stock-bot@users.noreply.github.com"
+          git add state.json docs/products.json docs/status.json
+          git diff --cached --quiet || git commit -m "재고 상태 업데이트"
+          git pull --rebase --autostash || true
+          git push || true

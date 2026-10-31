@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>30주년 팩 재고</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  :root { --bg:#f6f5f2; --card:#fff; --ink:#1d1d1f; --sub:#6b6b70; --line:#e4e2dc; --ok:#1f8a4c; --okbg:#e6f4ec; --no:#9a9aa0; --warn:#b5620b; --accent:#2b59c3; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif; background:var(--bg); color:var(--ink); }
+  header { padding:16px 16px 8px; max-width:760px; margin:0 auto; }
+  h1 { font-size:20px; margin:0 0 4px; }
+  .sub { color:var(--sub); font-size:13px; }
+  main { max-width:760px; margin:0 auto; padding:0 16px 40px; }
+  .controls { display:flex; gap:8px; flex-wrap:wrap; margin:12px 0; }
+  .controls input { flex:1 1 120px; min-width:0; padding:10px 12px; border:1px solid var(--line); border-radius:10px; font-size:15px; }
+  button { padding:10px 14px; border:0; border-radius:10px; font-size:15px; cursor:pointer; background:var(--ink); color:#fff; }
+  button.light { background:#fff; color:var(--ink); border:1px solid var(--line); }
+  button:disabled { opacity:.5; cursor:default; }
+  #map { height:320px; border-radius:14px; border:1px solid var(--line); }
+  .hint { font-size:12px; color:var(--sub); margin:6px 2px 0; }
+  #status { margin:16px 2px 8px; font-size:14px; color:var(--sub); }
+  .chains { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
+  .chip { font-size:12px; padding:4px 8px; border-radius:999px; background:#fff; border:1px solid var(--line); color:var(--sub); }
+  .chip.err { color:var(--warn); border-color:#f0d3b4; }
+  .list { display:flex; flex-direction:column; gap:8px; }
+  .row { display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; }
+  .row.out { opacity:.55; }
+  .brand { font-size:12px; font-weight:600; padding:3px 7px; border-radius:6px; color:#fff; white-space:nowrap; }
+  .b-gs25 { background:#0a7ac1; } .b-cu { background:#6f2c91; } .b-seveneleven { background:#e8501b; } .b-emart24 { background:#e0a100; }
+  .name { flex:1; font-size:15px; }
+  .dist { font-size:12px; color:var(--sub); }
+  .qty { font-weight:700; font-size:15px; white-space:nowrap; }
+  .qty.ok { color:var(--ok); background:var(--okbg); padding:4px 8px; border-radius:8px; }
+  .qty.no { color:var(--no); }
+  details { margin-top:14px; }
+  summary { cursor:pointer; color:var(--sub); font-size:14px; }
+  footer { max-width:760px; margin:0 auto; padding:0 16px 30px; font-size:12px; color:var(--sub); line-height:1.6; }
+</style>
+</head>
+<body>
+<header>
+  <h1>포켓몬카드 30주년 팩 재고</h1>
+  <div class="sub">선택한 위치 반경 1km · GS25 · CU · 세븐일레븐 · 이마트24</div>
+</header>
+<main>
+  <div class="controls">
+    <button id="gps">📍 현재 위치</button>
+    <input id="q" placeholder="역·동네 이름 검색 (예: 옥수역)" autocomplete="off">
+    <button id="search" class="light">검색</button>
+  </div>
+  <div id="map"></div>
+  <div class="hint">지도를 눌러서 원하는 위치를 직접 고를 수도 있어요.</div>
+
+  <div id="status">위치를 고르면 재고를 조회해요.</div>
+  <div class="chains" id="chains"></div>
+  <div class="list" id="instock"></div>
+  <details id="outWrap" hidden>
+    <summary id="outSum"></summary>
+    <div class="list" id="outstock" style="margin-top:8px"></div>
+  </details>
+</main>
+<footer>
+  재고 정보는 비공식 공개 API(daiso-mcp)를 거쳐 가져와서 실제와 다를 수 있어요. 방문 전에 매장에 전화로 확인하면 헛걸음을 줄일 수 있어요.<br>
+  지도 © OpenStreetMap 기여자
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const API = "https://mcp.aka.page";
+const RADIUS = 1000;
+const LABEL = { gs25: "GS25", cu: "CU", seveneleven: "세븐일레븐", emart24: "이마트24" };
+const TARGET = {
+  gs25: "포켓몬카드)30주년메가확장팩",
+  cu: "포켓몬)30주년기념카드",
+  seveneleven: "비젼)포켓몬확장팩(30주년)_H",
+  emart24: "포켓몬)포켓몬카드(30주년셀레브레이션)",
+};
+const $ = (id) => document.getElementById(id);
+
+// ── 지도 ──
+const map = L.map("map").setView([37.5665, 126.978], 12);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(map);
+let centerMarker = null, circle = null, storeLayer = L.layerGroup().addTo(map);
+
+// ── 도구 ──
+async function api(path, params) {
+  const qs = new URLSearchParams(Object.entries(params).filter(([, v]) => v !== "" && v != null));
+  const res = await fetch(`${API}${path}?${qs}`, { headers: { Accept: "application/json" } });
+  let body;
+  try { body = await res.json(); } catch { throw new Error(`HTTP ${res.status}`); }
+  if (!res.ok || !body.success) {
+    const code = body?.error?.code || `HTTP ${res.status}`;
+    throw new Error(code.includes("RATE_LIMIT") || res.status === 429 ? "오늘 조회 한도 초과" : code);
+  }
+  return body.data || {};
+}
+const norm = (t) => (t || "").replace(/[^0-9a-zA-Z가-힣]/g, "").toLowerCase();
+const matches = (n, t) => { n = norm(n); t = norm(t); return !!n && (n === t || n.includes(t) || t.includes(n)); };
+const num = (v) => (v == null || v === "" || isNaN(Number(v)) ? null : Math.trunc(Number(v)));
+function dist(lat1, lng1, lat2, lng2) {
+  const r = 6371000, rad = Math.PI / 180;
+  const a = Math.sin(((lat2 - lat1) * rad) / 2) ** 2 + Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin(((lng2 - lng1) * rad) / 2) ** 2;
+  return 2 * r * Math.asin(Math.sqrt(a));
+}
+function storeDist(s, c, centerQuery = true) {
+  const lat = parseFloat(s.latitude ?? s.lat), lng = parseFloat(s.longitude ?? s.lng);
+  if (lat > 33 && lat < 39 && lng > 124 && lng < 132) return { d: dist(c.lat, c.lng, lat, lng), lat, lng };
+  if (centerQuery && s.distanceM != null) return { d: Number(s.distanceM), lat: null, lng: null };
+  return null;
+}
+
+// ── 상품 코드 (알림 봇이 저장해 둔 products.json을 먼저 쓰고, 없으면 검색) ──
+let productsPromise = null;
+function getProducts() {
+  if (!productsPromise) productsPromise = (async () => {
+    let cached = {};
+    try { cached = await (await fetch("products.json", { cache: "no-store" })).json(); } catch {}
+    const out = {};
+    await Promise.all(Object.keys(TARGET).map(async (chain) => {
+      if (cached[chain]?.id && cached[chain].target === TARGET[chain]) { out[chain] = cached[chain]; return; }
+      try { out[chain] = await findProduct(chain, TARGET[chain]); } catch { out[chain] = null; }
+    }));
+    return out;
+  })();
+  return productsPromise;
+}
+async function findProduct(chain, target) {
+  let items = [];
+  if (chain === "gs25") items = (await api("/api/gs25/products", { keyword: target, limit: 30 })).products?.map((p) => [p.itemCode, p.itemName || p.shortItemName]) || [];
+  if (chain === "cu") items = (await api("/api/cu/inventory", { keyword: target, size: 30, storeCheck: "false" })).inventory?.items?.map((p) => [p.itemCode, p.itemName]) || [];
+  if (chain === "seveneleven") items = (await api("/api/seveneleven/products", { query: target, size: 30 })).products?.map((p) => [p.itemCode, p.itemName]) || [];
+  if (chain === "emart24") items = (await api("/api/emart24/products", { keyword: target, pageSize: 30 })).products?.map((p) => [p.pluCd, p.goodsName]) || [];
+  items = items.filter(([c, n]) => c && n);
+  const hit = items.find(([, n]) => matches(n, target)) || items.find(([, n]) => n.includes("30주년") && n.includes("포켓몬"));
+  return hit ? { id: String(hit[0]), name: hit[1] } : null;
+}
+
+// ── 세븐일레븐은 좌표 검색이 안 돼서 동네 이름이 필요해요 ──
+async function neighborhood(c) {
+  const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${c.lat}&lon=${c.lng}&zoom=16&accept-language=ko`;
+  const a = (await (await fetch(url)).json()).address || {};
+  const raw = a.quarter || a.neighbourhood || a.suburb || a.village || a.town || "";
+  return raw.replace(/[0-9·.]+/g, "").replace(/(동|가|리|읍|면)$/, "") || raw;
+}
+
+// ── 편의점별 재고 조회 ──
+async function stock(chain, p, c) {
+  const rows = [];
+  const push = (s, code, qty, dd) => rows.push({ chain, code: String(code), name: s.storeName || "", qty: num(qty), d: dd.d, lat: dd.lat, lng: dd.lng, phone: s.phone || s.tel || "" });
+  if (chain === "seveneleven") {
+    const kw = await neighborhood(c);
+    if (!kw) throw new Error("동네 이름 확인 실패");
+    const d = await api("/api/seveneleven/inventory", { keyword: p.name, storeKeyword: kw, storeLimit: 100 });
+    if (d.stockAvailable === false) throw new Error("재고 확인 실패");
+    for (const s of d.inventory?.stores || []) { const dd = storeDist(s, c, false); if (dd && dd.d <= RADIUS && s.storeCode) push(s, s.storeCode, s.stockQuantity, dd); }
+    return rows;
+  }
+  let stores = [], codeKey, qtyKey;
+  if (chain === "gs25") { const d = await api("/api/gs25/inventory", { itemCode: p.id, lat: c.lat, lng: c.lng, storeLimit: 40 }); stores = d.inventory?.stores || []; codeKey = "storeCode"; qtyKey = "realStockQuantity"; }
+  if (chain === "cu") {
+    const d = await api("/api/cu/inventory", { keyword: p.name, lat: c.lat, lng: c.lng, storeLimit: 40, size: 20 });
+    const ns = d.nearbyStores || {};
+    if (ns.stockItemCode && String(ns.stockItemCode) !== p.id) throw new Error("상품 불일치");
+    stores = ns.stores || []; codeKey = "storeCode"; qtyKey = "stock";
+  }
+  if (chain === "emart24") { const d = await api("/api/emart24/inventory", { pluCd: p.id, lat: c.lat, lng: c.lng, storeLimit: 40 }); stores = d.stores || []; codeKey = "bizNo"; qtyKey = "bizQty"; }
+  for (const s of stores) { const dd = storeDist(s, c); if (dd && dd.d <= RADIUS && s[codeKey]) push(s, s[codeKey], s[qtyKey], dd); }
+  return rows;
+}
+
+// ── 화면 ──
+let runId = 0;
+async function lookup(c, label) {
+  const my = ++runId;
+  if (centerMarker) map.removeLayer(centerMarker);
+  if (circle) map.removeLayer(circle);
+  centerMarker = L.marker([c.lat, c.lng]).addTo(map);
+  circle = L.circle([c.lat, c.lng], { radius: RADIUS, color: "#2b59c3", weight: 1.5, fillOpacity: 0.06 }).addTo(map);
+  map.fitBounds(circle.getBounds(), { padding: [10, 10] });
+  storeLayer.clearLayers();
+  $("status").textContent = `${label || "선택한 위치"} 주변 재고를 조회하는 중… (최대 20초 정도 걸려요)`;
+  $("chains").innerHTML = ""; $("instock").innerHTML = ""; $("outstock").innerHTML = ""; $("outWrap").hidden = true;
+
+  const products = await getProducts();
+  const all = [], chips = [];
+  await Promise.all(Object.keys(LABEL).map(async (chain) => {
+    try {
+      if (!products[chain]) throw new Error("상품을 못 찾음");
+      const rows = await stock(chain, products[chain], c);
+      all.push(...rows);
+      chips.push(`<span class="chip">${LABEL[chain]} ${rows.length}곳 확인</span>`);
+    } catch (e) {
+      chips.push(`<span class="chip err">${LABEL[chain]} 조회 실패 · ${e.message}</span>`);
+    }
+  }));
+  if (my !== runId) return; // 그 사이 다른 위치를 골랐으면 무시
+
+  const has = all.filter((r) => (r.qty || 0) > 0).sort((a, b) => a.d - b.d);
+  const none = all.filter((r) => !((r.qty || 0) > 0)).sort((a, b) => a.d - b.d);
+  const stamp = new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" });
+  $("status").innerHTML = has.length ? `<b>${has.length}곳</b>에 재고가 있어요 · ${stamp} 기준` : `1km 안에 재고 있는 매장이 없어요 · ${stamp} 기준`;
+  $("chains").innerHTML = chips.join("");
+  const html = (r) => `<div class="row ${(r.qty || 0) > 0 ? "" : "out"}">
+      <span class="brand b-${r.chain}">${LABEL[r.chain]}</span>
+      <div class="name">${r.name.replace(/</g, "&lt;")}<div class="dist">${Math.round(r.d)}m${r.phone ? ` · <a href="tel:${r.phone}">${r.phone}</a>` : ""}</div></div>
+      <span class="qty ${(r.qty || 0) > 0 ? "ok" : "no"}">${r.qty == null ? "확인 불가" : r.qty > 0 ? `${r.qty}개` : "없음"}</span></div>`;
+  $("instock").innerHTML = has.map(html).join("");
+  if (none.length) { $("outWrap").hidden = false; $("outSum").textContent = `재고 없는 매장 ${none.length}곳 보기`; $("outstock").innerHTML = none.map(html).join(""); }
+  for (const r of all) if (r.lat != null) {
+    const ok = (r.qty || 0) > 0;
+    L.circleMarker([r.lat, r.lng], { radius: ok ? 8 : 5, color: ok ? "#1f8a4c" : "#9a9aa0", fillOpacity: ok ? 0.9 : 0.4, weight: 1 })
+      .bindPopup(`${LABEL[r.chain]} ${r.name}<br>${ok ? `<b>${r.qty}개</b>` : "재고 없음"}`).addTo(storeLayer);
+  }
+}
+
+$("gps").onclick = () => {
+  if (!navigator.geolocation) return alertStatus("이 브라우저는 위치 기능을 지원하지 않아요.");
+  $("status").textContent = "현재 위치를 확인하는 중…";
+  navigator.geolocation.getCurrentPosition(
+    (p) => lookup({ lat: p.coords.latitude, lng: p.coords.longitude }, "현재 위치"),
+    () => alertStatus("위치 권한이 필요해요. 브라우저에서 위치 접근을 허용해 주세요."),
+    { enableHighAccuracy: true, timeout: 10000 });
+};
+function alertStatus(msg) { $("status").textContent = msg; }
+async function doSearch() {
+  const q = $("q").value.trim();
+  if (!q) return;
+  $("status").textContent = "장소를 찾는 중…";
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=kr&accept-language=ko&q=${encodeURIComponent(q)}`;
+    const r = (await (await fetch(url)).json())[0];
+    if (!r) return alertStatus(`'${q}'을(를) 찾지 못했어요. 다른 이름으로 검색해 보세요.`);
+    lookup({ lat: parseFloat(r.lat), lng: parseFloat(r.lon) }, q);
+  } catch { alertStatus("장소 검색에 실패했어요. 잠시 후 다시 시도해 주세요."); }
+}
+$("search").onclick = doSearch;
+$("q").addEventListener("keydown", (e) => { if (e.key === "Enter") doSearch(); });
+map.on("click", (e) => lookup({ lat: e.latlng.lat, lng: e.latlng.lng }, "선택한 위치"));
+getProducts(); // 미리 불러오기
+</script>
+</body>
+</html>

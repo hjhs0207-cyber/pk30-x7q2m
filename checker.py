@@ -194,6 +194,11 @@ def stock_by_center(cfg, chain, product, loc):
     else:  # emart24
         d = api(base, "/api/emart24/inventory", {"pluCd": product["id"], "lat": loc["lat"], "lng": loc["lng"], "storeLimit": limit})
         stores, code_key, qty_key = d.get("stores", []), "bizNo", "bizQty"
+    if chain == "emart24":
+        DEBUG.setdefault("emart24Raw", {})[loc["name"]] = {
+            "returned": len(stores), "dataKeys": list(d.keys())[:12],
+            "sample": {k: v for k, v in (stores[0].items() if stores else []) if k in ("storeName", "bizQty", "latitude", "longitude", "distanceM", "bizNo")},
+            "goodsInfo": d.get("goodsInfo"), "nearbyCount": len((d.get("nearbyStores") or {}).get("stores", []) if isinstance(d.get("nearbyStores"), dict) else d.get("nearbyStores") or [])}
     out = []
     for s in stores:
         dist = store_distance(s, loc)

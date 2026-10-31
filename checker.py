@@ -216,7 +216,11 @@ def stock_seveneleven(cfg, product, loc):
             d = api(cfg["apiBase"], "/api/seveneleven/inventory",
                     {"keyword": product["name"], "storeKeyword": kw, "storeLimit": 100}, retries=3)
             if not d.get("stockAvailable", True):
-                raise RuntimeError((d.get("stockError") or {}).get("message") or d.get("note") or "재고 확인 실패")
+                msg = (d.get("stockError") or {}).get("message") or d.get("note") or "재고 확인 실패"
+                if "확인하지 못했습니다" in msg:  # 앱에서 '재고부족'으로 나오는 경우 → 재고 없음으로 봐요
+                    DEBUG.setdefault("sevenKeywordStats", {})[f"{loc['name']}|{kw}"] = "수량 미제공 → 재고 없음으로 처리"
+                    continue
+                raise RuntimeError(msg)
             p = d.get("product") or {}
             if product.get("fallback"):
                 if p.get("itemName") and "30주년" not in p["itemName"]:

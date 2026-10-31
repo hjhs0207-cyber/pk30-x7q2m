@@ -33,7 +33,8 @@
   .name { flex:1; font-size:15px; }
   .dist { font-size:12px; color:var(--sub); }
   .qty { font-weight:700; font-size:15px; white-space:nowrap; }
-  .qty.ok { color:var(--ok); background:var(--okbg); padding:4px 8px; border-radius:8px; }
+  .qty.ok { color:var(--ok); background:var(--okbg); padding:6px 10px; border-radius:8px; font-size:16px; text-align:center; }
+  .qty small { display:block; font-size:10px; font-weight:500; opacity:.8; }
   .qty.no { color:var(--no); }
   details { margin-top:14px; }
   summary { cursor:pointer; color:var(--sub); font-size:14px; }
@@ -171,7 +172,11 @@ async function stock(chain, p, c) {
       try { d = await api("/api/seveneleven/inventory", { keyword: p.name, storeKeyword: kw, storeLimit: 100 }); break; }
       catch (e) { if (i >= 2 || !/HTTP 5/.test(e.message)) throw e; await new Promise((r) => setTimeout(r, 2500 * (i + 1))); }
     }
-    if (d.stockAvailable === false) throw new Error("재고 확인 실패");
+    if (d.stockAvailable === false) {
+      const msg = d.stockError?.message || d.note || "";
+      if (/확인하지 못했습니다/.test(msg)) return rows; // 앱에서 '재고부족'으로 나오는 경우 → 재고 없음으로 봐요
+      throw new Error("재고 확인 실패");
+    }
     for (const s of d.inventory?.stores || []) { const dd = storeDist(s, c, false); if (dd && dd.d <= RADIUS && s.storeCode) push(s, s.storeCode, s.stockQuantity, dd); }
     return rows;
   }
@@ -194,6 +199,12 @@ async function stock(chain, p, c) {
 }
 
 // ── 화면 ──
+// 이마트24는 실제 수량 대신 9999를 보내와서 "있음"으로만 보여줘요
+function qtyLabel(q) {
+  if (q == null) return "확인 불가";
+  if (q >= 999) return "재고 있음<small>수량 비공개</small>";
+  return q > 0 ? `재고 ${q}개` : "없음";
+}
 let runId = 0;
 async function lookup(c, label) {
   const my = ++runId;
@@ -223,18 +234,19 @@ async function lookup(c, label) {
   const has = all.filter((r) => (r.qty || 0) > 0).sort((a, b) => a.d - b.d);
   const none = all.filter((r) => !((r.qty || 0) > 0)).sort((a, b) => a.d - b.d);
   const stamp = new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" });
-  $("status").innerHTML = has.length ? `<b>${has.length}곳</b>에 재고가 있어요 · ${stamp} 기준` : `1km 안에 재고 있는 매장이 없어요 · ${stamp} 기준`;
+  const total = has.filter((r) => r.qty < 999).reduce((a, r) => a + r.qty, 0);
+  $("status").innerHTML = has.length ? `<b>${has.length}곳</b>에 재고가 있어요${total ? ` · 확인된 수량 합계 <b>${total}개</b>` : ""} · ${stamp} 기준` : `1km 안에 재고 있는 매장이 없어요 · ${stamp} 기준`;
   $("chains").innerHTML = chips.join("");
   const html = (r) => `<div class="row ${(r.qty || 0) > 0 ? "" : "out"}">
       <span class="brand b-${r.chain}">${LABEL[r.chain]}</span>
       <div class="name">${r.name.replace(/</g, "&lt;")}<div class="dist">${Math.round(r.d)}m${r.phone ? ` · <a href="tel:${r.phone}">${r.phone}</a>` : ""}</div></div>
-      <span class="qty ${(r.qty || 0) > 0 ? "ok" : "no"}">${r.qty == null ? "확인 불가" : r.qty >= 999 ? "있음" : r.qty > 0 ? `${r.qty}개` : "없음"}</span></div>`;
+      <span class="qty ${(r.qty || 0) > 0 ? "ok" : "no"}">${qtyLabel(r.qty)}</span></div>`;
   $("instock").innerHTML = has.map(html).join("");
   if (none.length) { $("outWrap").hidden = false; $("outSum").textContent = `재고 없는 매장 ${none.length}곳 보기`; $("outstock").innerHTML = none.map(html).join(""); }
   for (const r of all) if (r.lat != null) {
     const ok = (r.qty || 0) > 0;
     L.circleMarker([r.lat, r.lng], { radius: ok ? 8 : 5, color: ok ? "#1f8a4c" : "#9a9aa0", fillOpacity: ok ? 0.9 : 0.4, weight: 1 })
-      .bindPopup(`${LABEL[r.chain]} ${r.name}<br>${ok ? `<b>${r.qty >= 999 ? "있음" : r.qty + "개"}</b>` : "재고 없음"}`).addTo(storeLayer);
+      .bindPopup(`${LABEL[r.chain]} ${r.name}<br>${ok ? `<b>${r.qty >= 999 ? "재고 있음 (수량 비공개)" : `재고 ${r.qty}개`}</b>` : "재고 없음"}`).addTo(storeLayer);
   }
 }
 

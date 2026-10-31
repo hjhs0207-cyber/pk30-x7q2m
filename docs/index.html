@@ -146,7 +146,13 @@ async function findProduct(chain, target) {
 }
 
 // ── 세븐일레븐은 좌표 검색이 안 돼서 동네 이름이 필요해요 ──
-async function neighborhood(c) {
+const hoodCache = new Map();
+function neighborhood(c) {
+  const k = `${c.lat},${c.lng}`;
+  if (!hoodCache.has(k)) hoodCache.set(k, fetchHood(c).catch((e) => { hoodCache.delete(k); throw e; }));
+  return hoodCache.get(k);
+}
+async function fetchHood(c) {
   const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${c.lat}&lon=${c.lng}&zoom=16&accept-language=ko`;
   const a = (await (await fetch(url)).json()).address || {};
   const raw = a.quarter || a.neighbourhood || a.suburb || a.village || a.town || "";
@@ -173,7 +179,12 @@ async function stock(chain, p, c) {
     if (ns.stockItemCode && String(ns.stockItemCode) !== p.id) throw new Error("상품 불일치");
     stores = ns.stores || []; codeKey = "storeCode"; qtyKey = "stock";
   }
-  if (chain === "emart24") { const d = await api("/api/emart24/inventory", { pluCd: p.id, lat: c.lat, lng: c.lng, storeLimit: 60 }); stores = d.stores || []; codeKey = "bizNo"; qtyKey = "bizQty"; }
+  if (chain === "emart24") { // 좌표만으로는 주변 매장을 못 찾아서 동네 이름도 같이 보내요
+    const kw = await neighborhood(c);
+    if (!kw) throw new Error("동네 이름 확인 실패");
+    const d = await api("/api/emart24/inventory", { pluCd: p.id, storeKeyword: kw, lat: c.lat, lng: c.lng, storeLimit: 60 });
+    stores = d.inventory?.stores || d.stores || []; codeKey = "bizNo"; qtyKey = "bizQty";
+  }
   for (const s of stores) { const dd = storeDist(s, c); if (dd && dd.d <= RADIUS && s[codeKey]) push(s, s[codeKey], s[qtyKey], dd); }
   return rows;
 }
@@ -213,13 +224,13 @@ async function lookup(c, label) {
   const html = (r) => `<div class="row ${(r.qty || 0) > 0 ? "" : "out"}">
       <span class="brand b-${r.chain}">${LABEL[r.chain]}</span>
       <div class="name">${r.name.replace(/</g, "&lt;")}<div class="dist">${Math.round(r.d)}m${r.phone ? ` · <a href="tel:${r.phone}">${r.phone}</a>` : ""}</div></div>
-      <span class="qty ${(r.qty || 0) > 0 ? "ok" : "no"}">${r.qty == null ? "확인 불가" : r.qty > 0 ? `${r.qty}개` : "없음"}</span></div>`;
+      <span class="qty ${(r.qty || 0) > 0 ? "ok" : "no"}">${r.qty == null ? "확인 불가" : r.qty >= 999 ? "있음" : r.qty > 0 ? `${r.qty}개` : "없음"}</span></div>`;
   $("instock").innerHTML = has.map(html).join("");
   if (none.length) { $("outWrap").hidden = false; $("outSum").textContent = `재고 없는 매장 ${none.length}곳 보기`; $("outstock").innerHTML = none.map(html).join(""); }
   for (const r of all) if (r.lat != null) {
     const ok = (r.qty || 0) > 0;
     L.circleMarker([r.lat, r.lng], { radius: ok ? 8 : 5, color: ok ? "#1f8a4c" : "#9a9aa0", fillOpacity: ok ? 0.9 : 0.4, weight: 1 })
-      .bindPopup(`${LABEL[r.chain]} ${r.name}<br>${ok ? `<b>${r.qty}개</b>` : "재고 없음"}`).addTo(storeLayer);
+      .bindPopup(`${LABEL[r.chain]} ${r.name}<br>${ok ? `<b>${r.qty >= 999 ? "있음" : r.qty + "개"}</b>` : "재고 없음"}`).addTo(storeLayer);
   }
 }
 

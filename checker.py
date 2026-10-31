@@ -191,14 +191,15 @@ def stock_by_center(cfg, chain, product, loc):
         if ns.get("stockItemCode") and str(ns["stockItemCode"]) != product["id"]:
             raise RuntimeError(f"CU 상품 불일치: {ns.get('stockItemName')}")
         stores, code_key, qty_key = ns.get("stores", []), "storeCode", "stock"
-    else:  # emart24
-        d = api(base, "/api/emart24/inventory", {"pluCd": product["id"], "lat": loc["lat"], "lng": loc["lng"], "storeLimit": limit})
-        stores, code_key, qty_key = d.get("stores", []), "bizNo", "bizQty"
-    if chain == "emart24":
-        DEBUG.setdefault("emart24Raw", {})[loc["name"]] = {
-            "returned": len(stores), "dataKeys": list(d.keys())[:12],
-            "sample": {k: v for k, v in (stores[0].items() if stores else []) if k in ("storeName", "bizQty", "latitude", "longitude", "distanceM", "bizNo")},
-            "goodsInfo": d.get("goodsInfo"), "nearbyCount": len((d.get("nearbyStores") or {}).get("stores", []) if isinstance(d.get("nearbyStores"), dict) else d.get("nearbyStores") or [])}
+    else:  # emart24: 좌표만으로는 주변 매장을 못 찾아서 동네 이름도 같이 보내요
+        stores, seen = [], set()
+        for kw in loc.get("sevenKeywords", []):
+            d = api(base, "/api/emart24/inventory", {"pluCd": product["id"], "storeKeyword": kw, "lat": loc["lat"], "lng": loc["lng"], "storeLimit": limit})
+            for st in (d.get("inventory") or {}).get("stores") or d.get("stores", []):
+                if st.get("bizNo") not in seen:
+                    seen.add(st.get("bizNo"))
+                    stores.append(st)
+        code_key, qty_key = "bizNo", "bizQty"
     out = []
     for s in stores:
         dist = store_distance(s, loc)
@@ -266,7 +267,7 @@ def send_mail(subject, body):
 
 
 def fmt_rows(rows):
-    return "\n".join(f"- {CHAIN_LABEL[r['chain']]} {r['name']} : {r['qty']}개" for r in rows)
+    return "\n".join(f"- {CHAIN_LABEL[r['chain']]} {r['name']} : {'있음(수량 미표시)' if r['qty'] >= 999 else str(r['qty']) + '개'}" for r in rows)
 
 
 def main():

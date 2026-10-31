@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>30주년 팩 재고</title>
+<title>포켓몬카드 재고</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
   :root { --bg:#f6f5f2; --card:#fff; --ink:#1d1d1f; --sub:#6b6b70; --line:#e4e2dc; --ok:#1f8a4c; --okbg:#e6f4ec; --no:#9a9aa0; --warn:#b5620b; --accent:#2b59c3; }
@@ -38,12 +38,25 @@
   .qty.no { color:var(--no); }
   details { margin-top:14px; }
   summary { cursor:pointer; color:var(--sub); font-size:14px; }
+  .packs { background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px; margin:12px 0; }
+  .packs-head { display:flex; justify-content:space-between; align-items:center; font-size:14px; font-weight:600; margin-bottom:8px; }
+  .packs-head button { padding:4px 10px; font-size:12px; }
+  .pack-list { display:flex; flex-wrap:wrap; gap:6px; }
+  .pack-list label { display:flex; align-items:center; gap:4px; font-size:13px; padding:6px 10px; border:1px solid var(--line); border-radius:999px; cursor:pointer; user-select:none; }
+  .pack-list label.on { background:var(--ink); color:#fff; border-color:var(--ink); }
+  .pack-list input { display:none; }
+  .store { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; }
+  .store.out { opacity:.55; }
+  .store-top { display:flex; align-items:center; gap:10px; }
+  .items { margin-top:8px; display:flex; flex-direction:column; gap:6px; }
+  .item { display:flex; justify-content:space-between; align-items:center; font-size:14px; padding-left:4px; }
+  .item .qty.ok { font-size:15px; padding:4px 10px; }
   footer { max-width:760px; margin:0 auto; padding:0 16px 30px; font-size:12px; color:var(--sub); line-height:1.6; }
 </style>
 </head>
 <body>
 <header>
-  <h1>포켓몬카드 30주년 팩 재고</h1>
+  <h1>포켓몬카드 편의점 재고</h1>
   <div class="sub">선택한 위치 반경 1km · GS25 · CU · 세븐일레븐 · 이마트24</div>
 </header>
 <main>
@@ -52,8 +65,12 @@
     <input id="q" placeholder="역·동네 이름 검색 (예: 옥수역)" autocomplete="off">
     <button id="search" class="light">검색</button>
   </div>
+  <div class="packs">
+    <div class="packs-head"><span>조회할 확장팩</span><button id="allPacks" class="light">전체 선택</button></div>
+    <div class="pack-list" id="packList"><span class="sub">확장팩 목록을 불러오는 중…</span></div>
+  </div>
   <div id="map"></div>
-  <div class="hint">지도를 눌러서 원하는 위치를 직접 고를 수도 있어요.</div>
+  <div class="hint">지도를 눌러서 원하는 위치를 직접 고를 수도 있어요. 확장팩을 많이 고를수록 조회가 오래 걸려요.</div>
 
   <div id="status">위치를 고르면 재고를 조회해요.</div>
   <div class="chains" id="chains"></div>
@@ -113,20 +130,23 @@ function storeDist(s, c, centerQuery = true) {
   return null;
 }
 
-// ── 상품 코드 (알림 봇이 저장해 둔 products.json을 먼저 쓰고, 없으면 검색) ──
-let productsPromise = null;
-function getProducts() {
-  if (!productsPromise) productsPromise = (async () => {
-    let cached = {};
+// ── 확장팩 목록: 30주년(products.json) + 다른 확장팩(packs.json, 알림 봇이 12시간마다 갱신) ──
+let packsPromise = null;
+function getPacks() {
+  if (!packsPromise) packsPromise = (async () => {
+    let cached = {}, extra = {};
     try { cached = await (await fetch("products.json", { cache: "no-store" })).json(); } catch {}
-    const out = {};
+    try { extra = await (await fetch("packs.json", { cache: "no-store" })).json(); } catch {}
+    const main = {};
     await Promise.all(Object.keys(TARGET).map(async (chain) => {
-      if (cached[chain]?.id && cached[chain].target === TARGET[chain]) { out[chain] = cached[chain]; return; }
-      try { out[chain] = await findProduct(chain, TARGET[chain]); } catch { out[chain] = null; }
+      if (cached[chain]?.id && cached[chain].target === TARGET[chain]) { main[chain] = cached[chain]; return; }
+      try { main[chain] = await findProduct(chain, TARGET[chain]); } catch { main[chain] = null; }
     }));
-    return out;
+    const list = [{ key: "30주년", products: main }];
+    for (const name of extra.packs || []) list.push({ key: name, products: (extra.items || {})[name] || {} });
+    return list;
   })();
-  return productsPromise;
+  return packsPromise;
 }
 async function searchItems(chain, kw) {
   if (chain === "gs25") return (await api("/api/gs25/products", { keyword: kw, limit: 50 })).products?.map((p) => [p.itemCode, p.itemName || p.shortItemName]) || [];
@@ -172,6 +192,11 @@ async function stock(chain, p, c) {
       try { d = await api("/api/seveneleven/inventory", { keyword: p.name, storeKeyword: kw, storeLimit: 100 }); break; }
       catch (e) { if (i >= 2 || !/HTTP 5/.test(e.message)) throw e; await new Promise((r) => setTimeout(r, 2500 * (i + 1))); }
     }
+    if (p.fallback && !p.id) { // 확장팩 이름으로 찾은 경우: 돌아온 상품이 그 확장팩인지 확인
+      const got = d.product?.itemName || "";
+      if (!got) throw new Error("상품 없음");
+      if (!norm(got).includes(norm(p.name)) || /슬리브|바인더|파일|케이스|띠부|스티커/.test(got)) throw new Error("상품 없음");
+    }
     if (d.stockAvailable === false) {
       const msg = d.stockError?.message || d.note || "";
       if (/확인하지 못했습니다/.test(msg)) return rows; // 앱에서 '재고부족'으로 나오는 경우 → 재고 없음으로 봐요
@@ -205,48 +230,100 @@ function qtyLabel(q) {
   if (q >= 999) return "재고 있음<small>수량 비공개</small>";
   return q > 0 ? `재고 ${q}개` : "없음";
 }
+const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+// 확장팩 체크 (이 기기에 기억해 둬요)
+let selected = new Set(["30주년"]);
+try { const saved = JSON.parse(localStorage.getItem("packs") || "null"); if (Array.isArray(saved) && saved.length) selected = new Set(saved); } catch {}
+const saveSel = () => { try { localStorage.setItem("packs", JSON.stringify([...selected])); } catch {} };
+async function renderPacks() {
+  const packs = await getPacks();
+  $("packList").innerHTML = packs.map((p) => `<label class="${selected.has(p.key) ? "on" : ""}"><input type="checkbox" value="${esc(p.key)}" ${selected.has(p.key) ? "checked" : ""}>${esc(p.key)}</label>`).join("");
+  $("allPacks").textContent = packs.every((p) => selected.has(p.key)) ? "전체 해제" : "전체 선택";
+}
+$("packList").addEventListener("change", (e) => {
+  const v = e.target.value; e.target.checked ? selected.add(v) : selected.delete(v);
+  saveSel(); renderPacks(); scheduleRerun();
+});
+$("allPacks").onclick = async () => {
+  const packs = await getPacks();
+  if (packs.every((p) => selected.has(p.key))) selected = new Set(["30주년"]); else selected = new Set(packs.map((p) => p.key));
+  saveSel(); renderPacks(); scheduleRerun();
+};
+let lastCenter = null, rerunTimer = null;
+function scheduleRerun() { if (!lastCenter) return; clearTimeout(rerunTimer); rerunTimer = setTimeout(() => lookup(lastCenter.c, lastCenter.label), 900); }
+
+// 동시에 너무 많이 요청하지 않도록 4개씩 나눠서 조회해요
+async function pool(tasks, size, onDone) {
+  let i = 0;
+  await Promise.all(Array.from({ length: Math.min(size, tasks.length) }, async () => {
+    while (i < tasks.length) { const t = tasks[i++]; await t(); onDone(); }
+  }));
+}
+
 let runId = 0;
 async function lookup(c, label) {
   const my = ++runId;
+  lastCenter = { c, label };
   if (centerMarker) map.removeLayer(centerMarker);
   if (circle) map.removeLayer(circle);
   centerMarker = L.marker([c.lat, c.lng]).addTo(map);
   circle = L.circle([c.lat, c.lng], { radius: RADIUS, color: "#2b59c3", weight: 1.5, fillOpacity: 0.06 }).addTo(map);
   map.fitBounds(circle.getBounds(), { padding: [10, 10] });
   storeLayer.clearLayers();
-  $("status").textContent = `${label || "선택한 위치"} 주변 재고를 조회하는 중… (최대 20초 정도 걸려요)`;
   $("chains").innerHTML = ""; $("instock").innerHTML = ""; $("outstock").innerHTML = ""; $("outWrap").hidden = true;
 
-  const products = await getProducts();
-  const all = [], chips = [];
-  await Promise.all(Object.keys(LABEL).map(async (chain) => {
+  const packs = (await getPacks()).filter((p) => selected.has(p.key));
+  if (!packs.length) { $("status").textContent = "조회할 확장팩을 하나 이상 골라 주세요."; return; }
+  const jobs = [], fails = {}, missing = {};
+  for (const pack of packs) for (const chain of Object.keys(LABEL)) {
+    const prod = pack.products[chain];
+    if (!prod) { (missing[chain] ||= []).push(pack.key); continue; }
+    jobs.push({ pack: pack.key, chain, prod });
+  }
+  const stores = new Map(); // chain|code → {chain, name, d, lat, lng, phone, items: [{pack, qty}]}
+  let done = 0;
+  const progress = () => { if (my === runId) $("status").textContent = `${label || "선택한 위치"} 주변 재고를 조회하는 중… (${done}/${jobs.length})`; };
+  progress();
+  await pool(jobs.map((j) => async () => {
     try {
-      if (!products[chain]) throw new Error("상품을 못 찾음");
-      const rows = await stock(chain, products[chain], c);
-      all.push(...rows);
-      chips.push(`<span class="chip">${LABEL[chain]} ${rows.length}곳 확인</span>`);
-    } catch (e) {
-      chips.push(`<span class="chip err">${LABEL[chain]} 조회 실패 · ${e.message}</span>`);
-    }
-  }));
-  if (my !== runId) return; // 그 사이 다른 위치를 골랐으면 무시
+      const rows = await stock(j.chain, j.prod, c);
+      for (const r of rows) {
+        const k = `${r.chain}|${r.code}`;
+        if (!stores.has(k)) stores.set(k, { ...r, items: [] });
+        stores.get(k).items.push({ pack: j.pack, qty: r.qty });
+      }
+    } catch (e) { (fails[j.chain] ||= []).push(`${j.pack}: ${e.message}`); }
+  }), 4, () => { done++; progress(); });
+  if (my !== runId) return; // 그 사이 다른 위치나 확장팩을 골랐으면 무시
 
-  const has = all.filter((r) => (r.qty || 0) > 0).sort((a, b) => a.d - b.d);
-  const none = all.filter((r) => !((r.qty || 0) > 0)).sort((a, b) => a.d - b.d);
+  const all = [...stores.values()];
+  for (const s of all) s.items.sort((a, b) => (b.qty || 0) - (a.qty || 0));
+  const has = all.filter((s) => s.items.some((i) => (i.qty || 0) > 0)).sort((a, b) => a.d - b.d);
+  const none = all.filter((s) => !s.items.some((i) => (i.qty || 0) > 0)).sort((a, b) => a.d - b.d);
   const stamp = new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" });
-  const total = has.filter((r) => r.qty < 999).reduce((a, r) => a + r.qty, 0);
-  $("status").innerHTML = has.length ? `<b>${has.length}곳</b>에 재고가 있어요${total ? ` · 확인된 수량 합계 <b>${total}개</b>` : ""} · ${stamp} 기준` : `1km 안에 재고 있는 매장이 없어요 · ${stamp} 기준`;
+  $("status").innerHTML = has.length ? `<b>${has.length}곳</b>에 재고가 있어요 · ${stamp} 기준` : `1km 안에 재고 있는 매장이 없어요 · ${stamp} 기준`;
+
+  const chips = [];
+  for (const chain of Object.keys(LABEL)) {
+    const f = fails[chain] || [], m = missing[chain] || [];
+    if (f.length) chips.push(`<span class="chip err" title="${esc(f.join("\n"))}">${LABEL[chain]} ${f.length}개 조회 실패 · ${esc(f[0].split(": ").slice(1).join(": "))}</span>`);
+    if (m.length) chips.push(`<span class="chip" title="${esc(m.join(", "))}">${LABEL[chain]} ${m.length}개 팩은 상품 없음</span>`);
+    if (!f.length && !m.length) chips.push(`<span class="chip">${LABEL[chain]} 확인 완료</span>`);
+  }
   $("chains").innerHTML = chips.join("");
-  const html = (r) => `<div class="row ${(r.qty || 0) > 0 ? "" : "out"}">
-      <span class="brand b-${r.chain}">${LABEL[r.chain]}</span>
-      <div class="name">${r.name.replace(/</g, "&lt;")}<div class="dist">${Math.round(r.d)}m${r.phone ? ` · <a href="tel:${r.phone}">${r.phone}</a>` : ""}</div></div>
-      <span class="qty ${(r.qty || 0) > 0 ? "ok" : "no"}">${qtyLabel(r.qty)}</span></div>`;
-  $("instock").innerHTML = has.map(html).join("");
-  if (none.length) { $("outWrap").hidden = false; $("outSum").textContent = `재고 없는 매장 ${none.length}곳 보기`; $("outstock").innerHTML = none.map(html).join(""); }
-  for (const r of all) if (r.lat != null) {
-    const ok = (r.qty || 0) > 0;
-    L.circleMarker([r.lat, r.lng], { radius: ok ? 8 : 5, color: ok ? "#1f8a4c" : "#9a9aa0", fillOpacity: ok ? 0.9 : 0.4, weight: 1 })
-      .bindPopup(`${LABEL[r.chain]} ${r.name}<br>${ok ? `<b>${r.qty >= 999 ? "재고 있음 (수량 비공개)" : `재고 ${r.qty}개`}</b>` : "재고 없음"}`).addTo(storeLayer);
+
+  const html = (s, out) => `<div class="store ${out ? "out" : ""}">
+      <div class="store-top"><span class="brand b-${s.chain}">${LABEL[s.chain]}</span>
+        <div class="name">${esc(s.name)}<div class="dist">${Math.round(s.d)}m${s.phone ? ` · <a href="tel:${esc(s.phone)}">${esc(s.phone)}</a>` : ""}</div></div></div>
+      <div class="items">${s.items.filter((i) => out || (i.qty || 0) > 0).map((i) =>
+        `<div class="item"><span>${esc(i.pack)}</span><span class="qty ${(i.qty || 0) > 0 ? "ok" : "no"}">${qtyLabel(i.qty)}</span></div>`).join("")}</div></div>`;
+  $("instock").innerHTML = has.map((s) => html(s, false)).join("");
+  if (none.length) { $("outWrap").hidden = false; $("outSum").textContent = `재고 없는 매장 ${none.length}곳 보기`; $("outstock").innerHTML = none.map((s) => html(s, true)).join(""); }
+  for (const s of all) if (s.lat != null) {
+    const ok = s.items.filter((i) => (i.qty || 0) > 0);
+    L.circleMarker([s.lat, s.lng], { radius: ok.length ? 8 : 5, color: ok.length ? "#1f8a4c" : "#9a9aa0", fillOpacity: ok.length ? 0.9 : 0.4, weight: 1 })
+      .bindPopup(`${LABEL[s.chain]} ${esc(s.name)}<br>${ok.length ? ok.map((i) => `${esc(i.pack)}: <b>${i.qty >= 999 ? "있음" : i.qty + "개"}</b>`).join("<br>") : "재고 없음"}`).addTo(storeLayer);
   }
 }
 
@@ -273,7 +350,7 @@ async function doSearch() {
 $("search").onclick = doSearch;
 $("q").addEventListener("keydown", (e) => { if (e.key === "Enter") doSearch(); });
 map.on("click", (e) => lookup({ lat: e.latlng.lat, lng: e.latlng.lng }, "선택한 위치"));
-getProducts(); // 미리 불러오기
+renderPacks(); // 확장팩 목록 미리 불러오기
 </script>
 </body>
 </html>

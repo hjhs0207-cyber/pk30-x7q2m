@@ -225,8 +225,11 @@ def resolve_packs(cfg, now):
             if cands:
                 code, name = cands[0]
                 found[pack][chain] = {"id": str(code), "name": name}
-            elif (old.get("items") or {}).get(pack, {}).get(chain):
+            elif (old.get("items") or {}).get(pack, {}).get(chain) and not old["items"][pack][chain].get("fallback"):
                 found[pack][chain] = old["items"][pack][chain]  # 이번에 못 찾으면 예전 값 유지
+            elif chain == "seveneleven":
+                # 세븐일레븐 검색 서버가 자주 죽어서, 사이트가 확장팩 이름으로 바로 재고를 찾게 해요 (이름 확인은 사이트에서)
+                found[pack][chain] = {"id": "", "name": pack, "fallback": True}
     save_json(path, {"at": now.isoformat(timespec="seconds"), "packs": packs, "items": found, "errors": errors})
     for pack in packs:
         got = ", ".join(f"{CHAIN_LABEL[c]}={v['name']}" for c, v in found[pack].items()) or "없음"

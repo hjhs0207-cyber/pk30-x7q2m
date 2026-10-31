@@ -1,0 +1,16 @@
+{
+  "at": "2026-10-31T21:01:34+09:00",
+  "productErrors": {
+    "seveneleven": "HTTP 502"
+  },
+  "candidates": {
+    "emart24": {
+      "rawKeys": [
+        "keyword",
+        "sortType",
+        "saleProductYn",
+        "products"
+      ]
+    }
+  }
+}

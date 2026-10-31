@@ -226,7 +226,10 @@ def stock_seveneleven(cfg, product, loc):
         except Exception as e:
             errors.append(f"{kw}: {e}")
             continue
-        for s in (d.get("inventory") or {}).get("stores", []):
+        got = (d.get("inventory") or {}).get("stores", [])
+        near = [x for x in got if (store_distance(x, loc, center_query=False) or 1e9) <= cfg["radiusM"]]
+        DEBUG.setdefault("sevenKeywordStats", {})[f"{loc['name']}|{kw}"] = f"매장 {len(got)}곳 중 1km 안 {len(near)}곳"
+        for s in got:
             dist = store_distance(s, loc, center_query=False)
             if dist is not None and dist <= cfg["radiusM"] and s.get("storeCode"):
                 out[str(s["storeCode"])] = row("seveneleven", s["storeCode"], s.get("storeName"), num(s.get("stockQuantity")), dist)

@@ -146,6 +146,12 @@ def find_product(base, chain, target):
     return None
 
 
+def barcode_product(cfg, chain, target, now):
+    """검색이 안 되면 공통 바코드로 재고를 바로 조회해요. (다음 실행 때 다시 검색 시도)"""
+    print(f"[상품] {CHAIN_LABEL[chain]}: 바코드 {cfg['barcode']}로 대신 조회해요")
+    return {"id": cfg["barcode"], "name": target, "target": target, "fallback": True, "at": now.isoformat(timespec="seconds")}
+
+
 def resolve_products(cfg, cache, now):
     out = {}
     for chain, target in cfg["products"].items():
@@ -161,13 +167,11 @@ def resolve_products(cfg, cache, now):
                 print(f"[상품] {CHAIN_LABEL[chain]}: {p['name']} ({p['id']})")
             else:
                 print(f"[상품] {CHAIN_LABEL[chain]}: '{target}' 상품을 못 찾았어요")
-                if c.get("id"):
-                    out[chain] = c
+                out[chain] = c if c.get("id") and not c.get("fallback") else barcode_product(cfg, chain, target, now)
         except Exception as e:
             print(f"[상품] {CHAIN_LABEL[chain]} 검색 실패: {e}")
             DEBUG.setdefault("productErrors", {})[chain] = str(e)
-            if c.get("id"):
-                out[chain] = c
+            out[chain] = c if c.get("id") and not c.get("fallback") else barcode_product(cfg, chain, target, now)
     return out
 
 
@@ -205,7 +209,10 @@ def stock_seveneleven(cfg, product, loc):
         if not d.get("stockAvailable", True):
             raise RuntimeError((d.get("stockError") or {}).get("message") or "세븐일레븐 재고 확인 실패")
         p = d.get("product") or {}
-        if p.get("itemCode") and str(p["itemCode"]) != product["id"]:
+        if product.get("fallback"):
+            if p.get("itemName") and "30주년" not in p["itemName"]:
+                raise RuntimeError(f"세븐일레븐 상품 불일치: {p.get('itemName')}")
+        elif p.get("itemCode") and str(p["itemCode"]) != product["id"]:
             raise RuntimeError("세븐일레븐 상품 불일치")
         for s in (d.get("inventory") or {}).get("stores", []):
             dist = store_distance(s, loc, center_query=False)

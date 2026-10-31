@@ -1,17 +1,44 @@
 {
-  "_설명": "알림용 감시 위치와 상품 설정. sevenKeywords는 세븐일레븐 매장을 찾을 때 쓰는 동네 이름이에요(세븐일레븐만 좌표 검색이 안 돼서 필요).",
+  "_설명": "알림용 감시 위치와 상품 설정. sevenKeywords는 세븐일레븐 매장을 찾을 때 쓰는 동네 이름이에요(세븐일레븐만 좌표 검색이 안 돼서 필요). barcode는 상품 검색이 안 될 때 쓰는 공통 바코드예요(GS25·CU에서 확인).",
   "apiBase": "https://mcp.aka.page",
   "radiusM": 1000,
   "storeLimit": 60,
   "locations": [
-    { "id": "oksu", "name": "옥수역", "lat": 37.5406, "lng": 127.0175, "sevenKeywords": ["옥수", "금호"] },
-    { "id": "gongneung", "name": "공릉역", "lat": 37.6256, "lng": 127.0729, "sevenKeywords": ["공릉"] },
-    { "id": "sangbong", "name": "상봉역", "lat": 37.5965, "lng": 127.0852, "sevenKeywords": ["상봉", "망우"] }
+    {
+      "id": "oksu",
+      "name": "옥수역",
+      "lat": 37.5406,
+      "lng": 127.0175,
+      "sevenKeywords": [
+        "옥수",
+        "금호"
+      ]
+    },
+    {
+      "id": "gongneung",
+      "name": "공릉역",
+      "lat": 37.6256,
+      "lng": 127.0729,
+      "sevenKeywords": [
+        "공릉"
+      ]
+    },
+    {
+      "id": "sangbong",
+      "name": "상봉역",
+      "lat": 37.5965,
+      "lng": 127.0852,
+      "sevenKeywords": [
+        "상봉",
+        "망우"
+      ]
+    }
   ],
   "products": {
     "gs25": "포켓몬카드)30주년메가확장팩",
     "cu": "포켓몬)30주년기념카드",
     "seveneleven": "비젼)포켓몬확장팩(30주년)_H",
     "emart24": "포켓몬)포켓몬카드(30주년셀레브레이션)"
-  }
+  },
+  "barcode": "8800286275732"
 }

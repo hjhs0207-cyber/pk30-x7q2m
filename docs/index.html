@@ -166,18 +166,20 @@ async function findProduct(chain, target) {
   return null;
 }
 
-// ── 세븐일레븐은 좌표 검색이 안 돼서 동네 이름이 필요해요 ──
+// ── 세븐일레븐·이마트24는 좌표만으로 주변 매장을 못 찾아서 동네 이름이 필요해요 ──
+// 지도에서 나온 동네 이름 여러 개 + 직접 검색한 이름까지 써서 빠지는 매장이 없게 해요
+const stripHood = (t) => (t || "").replace(/[0-9·.\s]+/g, "").replace(/(역|동|가|리|읍|면)$/, "");
 const hoodCache = new Map();
-function neighborhood(c) {
+function neighborhoods(c) {
   const k = `${c.lat},${c.lng}`;
-  if (!hoodCache.has(k)) hoodCache.set(k, fetchHood(c).catch((e) => { hoodCache.delete(k); throw e; }));
+  if (!hoodCache.has(k)) hoodCache.set(k, fetchHoods(c).catch((e) => { hoodCache.delete(k); throw e; }));
   return hoodCache.get(k);
 }
-async function fetchHood(c) {
-  const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${c.lat}&lon=${c.lng}&zoom=16&accept-language=ko`;
+async function fetchHoods(c) {
+  const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${c.lat}&lon=${c.lng}&zoom=17&accept-language=ko`;
   const a = (await (await fetch(url)).json()).address || {};
-  const raw = a.quarter || a.neighbourhood || a.suburb || a.village || a.town || "";
-  return raw.replace(/[0-9·.]+/g, "").replace(/(동|가|리|읍|면)$/, "") || raw;
+  const names = [c.typed, a.quarter, a.neighbourhood, a.suburb].map(stripHood).filter((n) => n && n.length >= 2 && !/구$|시$/.test(n));
+  return [...new Set(names)].slice(0, 3);
 }
 
 // ── 편의점별 재고 조회 ──
@@ -185,24 +187,33 @@ async function stock(chain, p, c) {
   const rows = [];
   const push = (s, code, qty, dd) => rows.push({ chain, code: String(code), name: s.storeName || "", qty: num(qty), d: dd.d, lat: dd.lat, lng: dd.lng, phone: s.phone || s.tel || "" });
   if (chain === "seveneleven") {
-    const kw = await neighborhood(c);
-    if (!kw) throw new Error("동네 이름 확인 실패");
-    let d;
-    for (let i = 0; ; i++) { // 중계 서버가 502를 자주 내서 최대 3번까지 다시 시도해요
-      try { d = await api("/api/seveneleven/inventory", { keyword: p.name, storeKeyword: kw, storeLimit: 100 }); break; }
-      catch (e) { if (i >= 2 || !/HTTP 5/.test(e.message)) throw e; await new Promise((r) => setTimeout(r, 2500 * (i + 1))); }
+    const kws = await neighborhoods(c);
+    if (!kws.length) throw new Error("동네 이름 확인 실패");
+    const seen = new Set(); let ok = 0, lastErr = null;
+    for (const kw of kws) {
+      let d;
+      try {
+        for (let i = 0; ; i++) { // 중계 서버가 502를 자주 내서 최대 3번까지 다시 시도해요
+          try { d = await api("/api/seveneleven/inventory", { keyword: p.name, storeKeyword: kw, storeLimit: 100 }); break; }
+          catch (e) { if (i >= 2 || !/HTTP 5/.test(e.message)) throw e; await new Promise((r) => setTimeout(r, 2500 * (i + 1))); }
+        }
+        if (p.fallback && !p.id) { // 확장팩 이름으로 찾은 경우: 돌아온 상품이 그 확장팩인지 확인
+          const got = d.product?.itemName || "";
+          if (!got || !norm(got).includes(norm(p.name)) || /슬리브|바인더|파일|케이스|띠부|스티커/.test(got)) throw new Error("상품 없음");
+        }
+        if (d.stockAvailable === false) {
+          const msg = d.stockError?.message || d.note || "";
+          if (/확인하지 못했습니다/.test(msg)) { ok++; continue; } // 앱에서 '재고부족'으로 나오는 경우 → 재고 없음
+          throw new Error("재고 확인 실패");
+        }
+      } catch (e) { lastErr = e; continue; }
+      ok++;
+      for (const s of d.inventory?.stores || []) {
+        const dd = storeDist(s, c, false);
+        if (dd && dd.d <= RADIUS && s.storeCode && !seen.has(s.storeCode)) { seen.add(s.storeCode); push(s, s.storeCode, s.stockQuantity, dd); }
+      }
     }
-    if (p.fallback && !p.id) { // 확장팩 이름으로 찾은 경우: 돌아온 상품이 그 확장팩인지 확인
-      const got = d.product?.itemName || "";
-      if (!got) throw new Error("상품 없음");
-      if (!norm(got).includes(norm(p.name)) || /슬리브|바인더|파일|케이스|띠부|스티커/.test(got)) throw new Error("상품 없음");
-    }
-    if (d.stockAvailable === false) {
-      const msg = d.stockError?.message || d.note || "";
-      if (/확인하지 못했습니다/.test(msg)) return rows; // 앱에서 '재고부족'으로 나오는 경우 → 재고 없음으로 봐요
-      throw new Error("재고 확인 실패");
-    }
-    for (const s of d.inventory?.stores || []) { const dd = storeDist(s, c, false); if (dd && dd.d <= RADIUS && s.storeCode) push(s, s.storeCode, s.stockQuantity, dd); }
+    if (!ok && lastErr) throw lastErr;
     return rows;
   }
   let stores = [], codeKey, qtyKey;
@@ -214,10 +225,18 @@ async function stock(chain, p, c) {
     stores = ns.stores || []; codeKey = "storeCode"; qtyKey = "stock";
   }
   if (chain === "emart24") { // 좌표만으로는 주변 매장을 못 찾아서 동네 이름도 같이 보내요
-    const kw = await neighborhood(c);
-    if (!kw) throw new Error("동네 이름 확인 실패");
-    const d = await api("/api/emart24/inventory", { pluCd: p.id, storeKeyword: kw, lat: c.lat, lng: c.lng, storeLimit: 60 });
-    stores = d.inventory?.stores || d.stores || []; codeKey = "bizNo"; qtyKey = "bizQty";
+    const kws = await neighborhoods(c);
+    if (!kws.length) throw new Error("동네 이름 확인 실패");
+    const seen = new Set(); let ok = 0, lastErr = null;
+    for (const kw of kws) {
+      try {
+        const d = await api("/api/emart24/inventory", { pluCd: p.id, storeKeyword: kw, lat: c.lat, lng: c.lng, storeLimit: 60 });
+        ok++;
+        for (const st of d.inventory?.stores || d.stores || []) if (!seen.has(st.bizNo)) { seen.add(st.bizNo); stores.push(st); }
+      } catch (e) { lastErr = e; }
+    }
+    if (!ok && lastErr) throw lastErr;
+    codeKey = "bizNo"; qtyKey = "bizQty";
   }
   for (const s of stores) { const dd = storeDist(s, c); if (dd && dd.d <= RADIUS && s[codeKey]) push(s, s[codeKey], s[qtyKey], dd); }
   return rows;
@@ -344,7 +363,7 @@ async function doSearch() {
     const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=kr&accept-language=ko&q=${encodeURIComponent(q)}`;
     const r = (await (await fetch(url)).json())[0];
     if (!r) return alertStatus(`'${q}'을(를) 찾지 못했어요. 다른 이름으로 검색해 보세요.`);
-    lookup({ lat: parseFloat(r.lat), lng: parseFloat(r.lon) }, q);
+    lookup({ lat: parseFloat(r.lat), lng: parseFloat(r.lon), typed: q }, q);
   } catch { alertStatus("장소 검색에 실패했어요. 잠시 후 다시 시도해 주세요."); }
 }
 $("search").onclick = doSearch;

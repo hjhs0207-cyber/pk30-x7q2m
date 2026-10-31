@@ -253,13 +253,22 @@ def stock_by_center(cfg, chain, product, loc):
             raise RuntimeError(f"CU 상품 불일치: {ns.get('stockItemName')}")
         stores, code_key, qty_key = ns.get("stores", []), "storeCode", "stock"
     else:  # emart24: 좌표만으로는 주변 매장을 못 찾아서 동네 이름도 같이 보내요
-        stores, seen = [], set()
-        for kw in loc.get("sevenKeywords", []):
-            d = api(base, "/api/emart24/inventory", {"pluCd": product["id"], "storeKeyword": kw, "lat": loc["lat"], "lng": loc["lng"], "storeLimit": limit})
+        stores, seen, errors = [], set(), []
+        kws = loc.get("sevenKeywords", [])
+        for kw in kws:
+            try:
+                d = api(base, "/api/emart24/inventory", {"pluCd": product["id"], "storeKeyword": kw, "lat": loc["lat"], "lng": loc["lng"], "storeLimit": limit}, retries=2)
+            except Exception as e:  # 동네 하나가 실패해도 나머지 결과는 살려요
+                errors.append(f"{kw}: {e}")
+                continue
             for st in (d.get("inventory") or {}).get("stores") or d.get("stores", []):
                 if st.get("bizNo") not in seen:
                     seen.add(st.get("bizNo"))
                     stores.append(st)
+        if errors:
+            DEBUG.setdefault("emart24KeywordErrors", {})[loc["name"]] = errors
+            if len(errors) == len(kws):
+                raise RuntimeError("; ".join(errors))
         code_key, qty_key = "bizNo", "bizQty"
     out = []
     for s in stores:

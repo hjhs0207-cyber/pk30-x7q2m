@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-31T21:48:09+09:00",
+  "checkedAt": "2026-10-31T22:12:27+09:00",
   "locations": {
     "옥수역": {
       "GS25": [
@@ -126,7 +126,15 @@
         }
       ],
       "세븐일레븐": [],
-      "이마트24": "조회 실패"
+      "이마트24": [
+        {
+          "chain": "emart24",
+          "code": "25869",
+          "name": "옥수하이츠점",
+          "qty": 9999,
+          "distanceM": 124
+        }
+      ]
     },
     "공릉역": {
       "GS25": [
@@ -1121,24 +1129,426 @@
       "이마트24": [
         {
           "chain": "emart24",
-          "code": "30072",
-          "name": "상봉역점",
-          "qty": 9999,
-          "distanceM": 144
-        },
-        {
-          "chain": "emart24",
-          "code": "24751",
-          "name": "R상봉스타점",
-          "qty": 9999,
-          "distanceM": 273
-        },
-        {
-          "chain": "emart24",
           "code": "27025",
           "name": "상봉대광점",
-          "qty": 9999,
+          "qty": 0,
           "distanceM": 484
+        },
+        {
+          "chain": "emart24",
+          "code": "30072",
+          "name": "상봉역점",
+          "qty": 0,
+          "distanceM": 144
+        }
+      ]
+    },
+    "중동역": {
+      "GS25": [
+        {
+          "chain": "gs25",
+          "code": "V3N66",
+          "name": "송내푸르지오점",
+          "qty": 0,
+          "distanceM": 166
+        },
+        {
+          "chain": "gs25",
+          "code": "VT302",
+          "name": "중동뉴서울점",
+          "qty": 0,
+          "distanceM": 192
+        },
+        {
+          "chain": "gs25",
+          "code": "V7J54",
+          "name": "상동파크점",
+          "qty": 0,
+          "distanceM": 392
+        },
+        {
+          "chain": "gs25",
+          "code": "V2F39",
+          "name": "부천직업학교점",
+          "qty": 0,
+          "distanceM": 400
+        },
+        {
+          "chain": "gs25",
+          "code": "VEF75",
+          "name": "상동팰리스점",
+          "qty": 0,
+          "distanceM": 427
+        },
+        {
+          "chain": "gs25",
+          "code": "VH988",
+          "name": "부천팰리스점",
+          "qty": 0,
+          "distanceM": 481
+        },
+        {
+          "chain": "gs25",
+          "code": "VDQ39",
+          "name": "송내래미안점",
+          "qty": 0,
+          "distanceM": 545
+        },
+        {
+          "chain": "gs25",
+          "code": "VY571",
+          "name": "부천시민회관점",
+          "qty": 0,
+          "distanceM": 573
+        },
+        {
+          "chain": "gs25",
+          "code": "VMN69",
+          "name": "송내제일점",
+          "qty": 0,
+          "distanceM": 584
+        },
+        {
+          "chain": "gs25",
+          "code": "V7R98",
+          "name": "송내기쁨점",
+          "qty": 0,
+          "distanceM": 600
+        },
+        {
+          "chain": "gs25",
+          "code": "VEM52",
+          "name": "상동소망점",
+          "qty": 0,
+          "distanceM": 603
+        },
+        {
+          "chain": "gs25",
+          "code": "VH685",
+          "name": "송내우성점",
+          "qty": 0,
+          "distanceM": 635
+        },
+        {
+          "chain": "gs25",
+          "code": "V4168",
+          "name": "송내중앙점",
+          "qty": 0,
+          "distanceM": 717
+        },
+        {
+          "chain": "gs25",
+          "code": "VDC59",
+          "name": "송내해피점",
+          "qty": 0,
+          "distanceM": 735
+        },
+        {
+          "chain": "gs25",
+          "code": "VGW79",
+          "name": "부천문예점",
+          "qty": 0,
+          "distanceM": 736
+        },
+        {
+          "chain": "gs25",
+          "code": "VS093",
+          "name": "상동석천로점",
+          "qty": 0,
+          "distanceM": 770
+        },
+        {
+          "chain": "gs25",
+          "code": "V2N47",
+          "name": "부천심곡산우물점",
+          "qty": 0,
+          "distanceM": 780
+        },
+        {
+          "chain": "gs25",
+          "code": "VHD49",
+          "name": "뉴송내성주로점",
+          "qty": 0,
+          "distanceM": 795
+        },
+        {
+          "chain": "gs25",
+          "code": "V7G54",
+          "name": "송내자이점",
+          "qty": 0,
+          "distanceM": 798
+        },
+        {
+          "chain": "gs25",
+          "code": "VEZ88",
+          "name": "송내행복점",
+          "qty": 0,
+          "distanceM": 798
+        },
+        {
+          "chain": "gs25",
+          "code": "VNF43",
+          "name": "송내현대점",
+          "qty": 0,
+          "distanceM": 848
+        },
+        {
+          "chain": "gs25",
+          "code": "VET27",
+          "name": "심곡제일점",
+          "qty": 0,
+          "distanceM": 856
+        },
+        {
+          "chain": "gs25",
+          "code": "V2R56",
+          "name": "중동복사골점",
+          "qty": 0,
+          "distanceM": 880
+        },
+        {
+          "chain": "gs25",
+          "code": "VX150",
+          "name": "부천상도점",
+          "qty": 0,
+          "distanceM": 889
+        },
+        {
+          "chain": "gs25",
+          "code": "V5865",
+          "name": "송내점",
+          "qty": 0,
+          "distanceM": 899
+        },
+        {
+          "chain": "gs25",
+          "code": "VN273",
+          "name": "부천세일점",
+          "qty": 0,
+          "distanceM": 910
+        },
+        {
+          "chain": "gs25",
+          "code": "VU703",
+          "name": "중동시장점",
+          "qty": 0,
+          "distanceM": 915
+        },
+        {
+          "chain": "gs25",
+          "code": "V4T42",
+          "name": "심곡공원점",
+          "qty": 0,
+          "distanceM": 982
+        },
+        {
+          "chain": "gs25",
+          "code": "VH092",
+          "name": "부천엠파이어점",
+          "qty": 0,
+          "distanceM": 984
+        },
+        {
+          "chain": "gs25",
+          "code": "V4A78",
+          "name": "중동본점",
+          "qty": 0,
+          "distanceM": 988
+        }
+      ],
+      "CU": [
+        {
+          "chain": "cu",
+          "code": "45766",
+          "name": "중동뉴서울점",
+          "qty": 0,
+          "distanceM": 127
+        },
+        {
+          "chain": "cu",
+          "code": "35957",
+          "name": "중동역점",
+          "qty": 0,
+          "distanceM": 164
+        },
+        {
+          "chain": "cu",
+          "code": "47392",
+          "name": "송내감자점",
+          "qty": 0,
+          "distanceM": 433
+        },
+        {
+          "chain": "cu",
+          "code": "51637",
+          "name": "시민회관점",
+          "qty": 0,
+          "distanceM": 446
+        },
+        {
+          "chain": "cu",
+          "code": "18699",
+          "name": "상동베스트점",
+          "qty": 0,
+          "distanceM": 559
+        },
+        {
+          "chain": "cu",
+          "code": "35581",
+          "name": "송내늘사랑점",
+          "qty": 0,
+          "distanceM": 733
+        },
+        {
+          "chain": "cu",
+          "code": "55676",
+          "name": "중동웰빙점",
+          "qty": 0,
+          "distanceM": 738
+        },
+        {
+          "chain": "cu",
+          "code": "49452",
+          "name": "중동시장점",
+          "qty": 0,
+          "distanceM": 738
+        },
+        {
+          "chain": "cu",
+          "code": "52325",
+          "name": "부천송내타운점",
+          "qty": 0,
+          "distanceM": 757
+        },
+        {
+          "chain": "cu",
+          "code": "17644",
+          "name": "송내마이빌점",
+          "qty": 0,
+          "distanceM": 757
+        },
+        {
+          "chain": "cu",
+          "code": "49978",
+          "name": "부천마을점",
+          "qty": 0,
+          "distanceM": 769
+        },
+        {
+          "chain": "cu",
+          "code": "42466",
+          "name": "송내영진점",
+          "qty": 0,
+          "distanceM": 793
+        },
+        {
+          "chain": "cu",
+          "code": "31412",
+          "name": "송내성주점",
+          "qty": 0,
+          "distanceM": 836
+        },
+        {
+          "chain": "cu",
+          "code": "46657",
+          "name": "부천중앙점",
+          "qty": 0,
+          "distanceM": 843
+        },
+        {
+          "chain": "cu",
+          "code": "47445",
+          "name": "복사골건영점",
+          "qty": 0,
+          "distanceM": 889
+        },
+        {
+          "chain": "cu",
+          "code": "46328",
+          "name": "송내뜨란채점",
+          "qty": 0,
+          "distanceM": 940
+        },
+        {
+          "chain": "cu",
+          "code": "49858",
+          "name": "송내앤스빌점",
+          "qty": 0,
+          "distanceM": 947
+        },
+        {
+          "chain": "cu",
+          "code": "30960",
+          "name": "중동행복점",
+          "qty": 0,
+          "distanceM": 950
+        },
+        {
+          "chain": "cu",
+          "code": "48473",
+          "name": "부천로얄타운점",
+          "qty": 0,
+          "distanceM": 962
+        },
+        {
+          "chain": "cu",
+          "code": "45950",
+          "name": "송내파인푸르지오점",
+          "qty": 0,
+          "distanceM": 987
+        }
+      ],
+      "세븐일레븐": [
+        {
+          "chain": "seveneleven",
+          "code": "13301",
+          "name": "부천송내엔파트점",
+          "qty": -1,
+          "distanceM": 562
+        },
+        {
+          "chain": "seveneleven",
+          "code": "16814",
+          "name": "부천중동석천로점",
+          "qty": 0,
+          "distanceM": 926
+        }
+      ],
+      "이마트24": [
+        {
+          "chain": "emart24",
+          "code": "30771",
+          "name": "중동역점",
+          "qty": 9999,
+          "distanceM": 167
+        },
+        {
+          "chain": "emart24",
+          "code": "26936",
+          "name": "부천팰리스점",
+          "qty": 9999,
+          "distanceM": 485
+        },
+        {
+          "chain": "emart24",
+          "code": "22622",
+          "name": "송내동신점",
+          "qty": 0,
+          "distanceM": 749
+        },
+        {
+          "chain": "emart24",
+          "code": "29593",
+          "name": "부천송내우성점",
+          "qty": 0,
+          "distanceM": 558
+        },
+        {
+          "chain": "emart24",
+          "code": "30093",
+          "name": "R송내푸르지오점",
+          "qty": 0,
+          "distanceM": 451
         }
       ]
     }

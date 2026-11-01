@@ -437,10 +437,16 @@ function alertStatus(msg) { $("status").textContent = msg; }
 async function doSearch() {
   const q = $("q").value.trim();
   if (!q) return;
+  // 원터치 역 이름이면 같은 위치로 (예: '중동역'은 부산이 아니라 1호선 부천 중동역)
+  const quick = QUICK.find((x) => x.name === q || x.name === q + "역");
+  if (quick) return $(`quick`).querySelector(`button[data-i="${QUICK.indexOf(quick)}"]`).click();
+  document.querySelectorAll("#quick button").forEach((x) => x.classList.remove("active"));
   $("status").textContent = "장소를 찾는 중…";
   try {
-    const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=kr&accept-language=ko&q=${encodeURIComponent(q)}`;
-    const r = (await (await fetch(url)).json())[0];
+    const base = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=kr&accept-language=ko&q=${encodeURIComponent(q)}`;
+    // 수도권(서울·경기·인천)에서 먼저 찾고, 없으면 전국에서 찾아요
+    let r = (await (await fetch(`${base}&viewbox=126.3,38.0,127.6,36.9&bounded=1`)).json())[0];
+    if (!r) r = (await (await fetch(base)).json())[0];
     if (!r) return alertStatus(`'${q}'을(를) 찾지 못했어요. 다른 이름으로 검색해 보세요.`);
     lookup({ lat: parseFloat(r.lat), lng: parseFloat(r.lon), typed: q }, q);
   } catch { alertStatus("장소 검색에 실패했어요. 잠시 후 다시 시도해 주세요."); }

@@ -225,7 +225,7 @@
     "seveneleven|59426": -1,
     "cu|56024": 0
   },
-  "lastRun": "2026-11-01T12:20:56+09:00",
+  "lastRun": "2026-11-01T13:10:12+09:00",
   "locStarted": [
     "gongneung",
     "jungdong",
@@ -235,5 +235,6 @@
   "mailStarted": [
     "2bdd233319100f46",
     "683004e4ff239e11"
-  ]
+  ],
+  "lastAlert": {}
 }

@@ -52,6 +52,23 @@
   .items { margin-top:8px; display:flex; flex-direction:column; gap:6px; }
   .item { display:flex; justify-content:space-between; align-items:center; font-size:14px; padding-left:4px; }
   .item .qty.ok { font-size:15px; padding:4px 10px; }
+  .quick { display:flex; gap:6px; flex-wrap:wrap; margin:-4px 0 4px; }
+  .quick button { flex:1 1 0; padding:9px 6px; font-size:14px; }
+  .quick button.active { background:var(--ink); color:#fff; }
+  .hist-btn { width:100%; margin-top:6px; }
+  #history { background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px; margin:12px 0; }
+  #history h2 { font-size:16px; margin:0 0 4px; }
+  .hist-filter { display:flex; gap:6px; flex-wrap:wrap; margin:10px 0; }
+  .hist-filter button { padding:5px 10px; font-size:13px; }
+  .hist-filter button.on { background:var(--ink); color:#fff; }
+  .hist-day { font-size:13px; font-weight:600; color:var(--sub); margin:12px 0 6px; }
+  .hist-row { display:flex; align-items:center; gap:8px; font-size:14px; padding:6px 0; border-bottom:1px solid #f0efea; }
+  .hist-row .time { color:var(--sub); font-size:12px; width:42px; }
+  .hist-row .what { flex:1; }
+  .tag-in { color:var(--ok); font-weight:700; } .tag-out { color:var(--no); }
+  .pattern { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-top:8px; text-align:center; font-size:12px; }
+  .pattern div { background:#f3f2ee; border-radius:6px; padding:6px 0; }
+  .pattern div.hot { background:var(--okbg); color:var(--ok); font-weight:700; }
   footer { max-width:760px; margin:0 auto; padding:0 16px 30px; font-size:12px; color:var(--sub); line-height:1.6; }
 </style>
 </head>
@@ -66,6 +83,18 @@
     <input id="q" placeholder="역·동네 이름 검색 (예: 옥수역)" autocomplete="off">
     <button id="search" class="light">검색</button>
   </div>
+  <div class="quick" id="quick">
+    <button class="light" data-i="0">옥수역</button><button class="light" data-i="1">공릉역</button>
+    <button class="light" data-i="2">상봉역</button><button class="light" data-i="3">중동역</button>
+  </div>
+  <button class="light hist-btn" id="histBtn">📋 입고 기록 보기</button>
+  <section id="history" hidden>
+    <h2>입고 기록 <span class="sub">· 30주년 · 알림 위치 4곳</span></h2>
+    <div class="sub" id="histInfo"></div>
+    <div class="hist-filter" id="histFilter"></div>
+    <div id="histPattern"></div>
+    <div id="histList"></div>
+  </section>
   <div class="packs">
     <div class="packs-head"><span>조회할 확장팩</span><button id="allPacks" class="light">전체 선택</button></div>
     <div class="pack-list" id="packList"><span class="sub">확장팩 목록을 불러오는 중…</span></div>
@@ -418,6 +447,64 @@ async function doSearch() {
 $("search").onclick = doSearch;
 $("q").addEventListener("keydown", (e) => { if (e.key === "Enter") doSearch(); });
 map.on("click", (e) => lookup({ lat: e.latlng.lat, lng: e.latlng.lng }, "선택한 위치"));
+
+// ── 원터치 위치 버튼 ──
+const QUICK = [
+  { name: "옥수역", lat: 37.5406, lng: 127.0175 },
+  { name: "공릉역", lat: 37.6256, lng: 127.0729 },
+  { name: "상봉역", lat: 37.5965, lng: 127.0852 },
+  { name: "중동역", lat: 37.4866, lng: 126.7646 },
+];
+$("quick").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  const q = QUICK[+b.dataset.i];
+  document.querySelectorAll("#quick button").forEach((x) => x.classList.toggle("active", x === b));
+  $("q").value = q.name;
+  lookup({ lat: q.lat, lng: q.lng, typed: q.name }, q.name);
+});
+
+// ── 입고 기록 (알림 봇이 확인할 때마다 docs/history.json에 쌓아요) ──
+let histData = null, histLoc = "전체";
+const DAYS = ["일", "월", "화", "수", "목", "금", "토"];
+$("histBtn").onclick = async () => {
+  const box = $("history");
+  box.hidden = !box.hidden;
+  $("histBtn").textContent = box.hidden ? "📋 입고 기록 보기" : "📋 입고 기록 닫기";
+  if (box.hidden) return;
+  try { histData = await (await fetch("history.json", { cache: "no-store" })).json(); } catch { histData = { events: [] }; }
+  renderHistory();
+};
+$("histFilter").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { histLoc = b.dataset.loc; renderHistory(); } });
+function renderHistory() {
+  const all = (histData.events || []).slice().sort((a, b) => (a.t < b.t ? 1 : -1));
+  const locs = ["전체", ...QUICK.map((q) => q.name)];
+  $("histFilter").innerHTML = locs.map((l) => `<button class="light ${l === histLoc ? "on" : ""}" data-loc="${l}">${l}</button>`).join("");
+  const ev = histLoc === "전체" ? all : all.filter((e) => e.loc === histLoc);
+  const since = histData.since ? new Date(histData.since) : null, upd = histData.updatedAt ? new Date(histData.updatedAt) : null;
+  const fmt = (d) => `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  $("histInfo").textContent = `${since ? fmt(since) + "부터 기록 중" : ""}${upd ? ` · 마지막 확인 ${fmt(upd)}` : ""} · 이마트24 9999는 기록하지 않아요`;
+
+  const ins = ev.filter((e) => e.type === "입고");
+  if (ins.length >= 3) { // 요일별 입고 횟수 + 가장 많은 시간대
+    const byDay = Array(7).fill(0), byHour = Array(24).fill(0);
+    for (const e of ins) { const d = new Date(e.t); byDay[d.getDay()]++; byHour[d.getHours()]++; }
+    const max = Math.max(...byDay), topH = byHour.indexOf(Math.max(...byHour));
+    $("histPattern").innerHTML = `<div class="sub">요일별 입고 횟수 · 가장 많은 시간대 <b>${topH}시~${topH + 1}시</b></div>
+      <div class="pattern">${byDay.map((n, i) => `<div class="${n && n === max ? "hot" : ""}">${DAYS[i]}<br>${n}</div>`).join("")}</div>`;
+  } else $("histPattern").innerHTML = "";
+
+  if (!ev.length) { $("histList").innerHTML = `<p class="sub" style="margin-top:12px">아직 기록된 입고가 없어요. 재고가 생기거나 없어지면 여기에 쌓여요.</p>`; return; }
+  let html = "", day = "";
+  for (const e of ev) {
+    const d = new Date(e.t), key = `${d.getMonth() + 1}월 ${d.getDate()}일 (${DAYS[d.getDay()]})`;
+    if (key !== day) { html += `<div class="hist-day">${key}</div>`; day = key; }
+    html += `<div class="hist-row"><span class="time">${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}</span>
+      <span class="brand b-${e.chain}">${LABEL[e.chain]}</span><span class="what">${esc(e.store)}<div class="dist">${esc(e.loc)}</div></span>
+      <span class="${e.type === "입고" ? "tag-in" : "tag-out"}">${e.type === "입고" ? `입고 ${e.qty}개` : "품절"}</span></div>`;
+  }
+  $("histList").innerHTML = html;
+}
+
 renderPacks(); // 확장팩 목록 미리 불러오기
 </script>
 </body>

@@ -28,6 +28,7 @@ CHAIN_LABEL = {"gs25": "GS25", "cu": "CU", "seveneleven": "세븐일레븐", "em
 PRODUCT_CACHE_HOURS = 12
 UNCERTAIN_QTY = 999        # 이 이상(이마트24 9999)은 실제 수량이 아니라고 봐요
 ALERT_COOLDOWN_HOURS = 6   # 같은 매장은 이 시간 안에 다시 알리지 않아요
+HISTORY_DAYS = 90          # 입고 기록 보관 기간
 DEBUG = {}  # 조회 실패 원인을 docs/debug.json에 남겨요 (로그 대신 확인용)
 
 
@@ -397,6 +398,9 @@ def main():
     loc_started = set(state.get("locStarted") or ([l["id"] for l in cfg["locations"]] if "qty" in state else []))
     restocks = {}  # loc_id -> rows
     last_alert = dict(state.get("lastAlert") or {})
+    hist_path = ROOT / "docs" / "history.json"
+    history = load_json(hist_path, {}).get("events", [])
+    stamp_iso, logged = now.isoformat(timespec="minutes"), set()
     for loc in cfg["locations"]:
         for chain, rows in results[loc["id"]].items():
             if rows is None:  # 조회 실패 → 이전 상태 유지, 알림 없음
@@ -413,6 +417,15 @@ def main():
                 if was >= UNCERTAIN_QTY:
                     was = 0
                 new_qty[key] = r["qty"]
+                if key not in logged:  # 입고 기록 (여러 위치에 겹치는 매장은 한 번만)
+                    if was <= 0 < r["qty"] and key in old_qty:
+                        history.append({"t": stamp_iso, "loc": loc["name"], "chain": chain, "store": r["name"],
+                                        "qty": r["qty"], "type": "입고", "pack": "30주년"})
+                        logged.add(key)
+                    elif was > 0 and r["qty"] == 0:
+                        history.append({"t": stamp_iso, "loc": loc["name"], "chain": chain, "store": r["name"],
+                                        "qty": was, "type": "품절", "pack": "30주년"})
+                        logged.add(key)
                 if was <= 0 < r["qty"] and loc["id"] in loc_started:
                     last = last_alert.get(key)
                     if last and now - datetime.fromisoformat(last) < timedelta(hours=ALERT_COOLDOWN_HOURS):
@@ -454,6 +467,10 @@ def main():
     for rows in restocks.values():
         for r in rows:
             last_alert[f"{r['chain']}|{r['code']}"] = now.isoformat(timespec="seconds")
+    keep = (now - timedelta(days=HISTORY_DAYS)).isoformat()
+    history = [e for e in history if e["t"] >= keep[:16]]
+    save_json(hist_path, {"since": load_json(hist_path, {}).get("since") or "2026-10-31T21:00+09:00",
+                          "updatedAt": stamp_iso, "events": history})
     cutoff = now - timedelta(days=2)
     last_alert = {k: v for k, v in last_alert.items() if datetime.fromisoformat(v) > cutoff}
 

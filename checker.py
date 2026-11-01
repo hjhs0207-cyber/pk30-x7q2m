@@ -26,6 +26,8 @@ ROOT = Path(__file__).parent
 KST = timezone(timedelta(hours=9))
 CHAIN_LABEL = {"gs25": "GS25", "cu": "CU", "seveneleven": "세븐일레븐", "emart24": "이마트24"}
 PRODUCT_CACHE_HOURS = 12
+UNCERTAIN_QTY = 999        # 이 이상(이마트24 9999)은 실제 수량이 아니라고 봐요
+ALERT_COOLDOWN_HOURS = 6   # 같은 매장은 이 시간 안에 다시 알리지 않아요
 DEBUG = {}  # 조회 실패 원인을 docs/debug.json에 남겨요 (로그 대신 확인용)
 
 
@@ -394,6 +396,7 @@ def main():
     # 이미 감시 중이던 위치만 '재고 생김'을 판단해요 (새로 추가된 위치는 이번엔 현재 상태만 기록)
     loc_started = set(state.get("locStarted") or ([l["id"] for l in cfg["locations"]] if "qty" in state else []))
     restocks = {}  # loc_id -> rows
+    last_alert = dict(state.get("lastAlert") or {})
     for loc in cfg["locations"]:
         for chain, rows in results[loc["id"]].items():
             if rows is None:  # 조회 실패 → 이전 상태 유지, 알림 없음
@@ -402,9 +405,19 @@ def main():
                 if r["qty"] is None:
                     continue
                 key = f"{chain}|{r['code']}"
+                if r["qty"] >= UNCERTAIN_QTY:
+                    # 이마트24의 9999는 실제 수량이 아니라 '확인 불가'에 가까워서 (9999↔0을 오락가락함)
+                    # 상태도 바꾸지 않고 알림도 보내지 않아요
+                    continue
                 was = old_qty.get(key, 0)
+                if was >= UNCERTAIN_QTY:
+                    was = 0
                 new_qty[key] = r["qty"]
                 if was <= 0 < r["qty"] and loc["id"] in loc_started:
+                    last = last_alert.get(key)
+                    if last and now - datetime.fromisoformat(last) < timedelta(hours=ALERT_COOLDOWN_HOURS):
+                        print(f"[알림] {CHAIN_LABEL[chain]} {r['name']}: {ALERT_COOLDOWN_HOURS}시간 안에 이미 알려서 건너뜀")
+                        continue
                     restocks.setdefault(loc["id"], []).append(r)
     loc_started |= {l["id"] for l in cfg["locations"]}
 
@@ -438,9 +451,14 @@ def main():
                       f"{stamp} 기준 재고가 새로 생긴 매장이에요.\n\n" + "\n\n".join(parts))
     if not restocks:
         print("[알림] 새로 재고가 생긴 매장이 없어요.")
+    for rows in restocks.values():
+        for r in rows:
+            last_alert[f"{r['chain']}|{r['code']}"] = now.isoformat(timespec="seconds")
+    cutoff = now - timedelta(days=2)
+    last_alert = {k: v for k, v in last_alert.items() if datetime.fromisoformat(v) > cutoff}
 
     state = {"qty": new_qty, "lastRun": now.isoformat(timespec="seconds"),
-             "locStarted": sorted(loc_started), "mailStarted": sorted(started)}
+             "locStarted": sorted(loc_started), "mailStarted": sorted(started), "lastAlert": last_alert}
     save_json(ROOT / "state.json", state)
     save_json(ROOT / "docs" / "debug.json", {"at": now.isoformat(timespec="seconds"), **DEBUG})
     save_json(ROOT / "docs" / "status.json", {

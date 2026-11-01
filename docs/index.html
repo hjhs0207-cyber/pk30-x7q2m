@@ -89,9 +89,10 @@
   </div>
   <button class="light hist-btn" id="histBtn">📋 입고 기록 보기</button>
   <section id="history" hidden>
-    <h2>입고 기록 <span class="sub">· 30주년 · 알림 위치 4곳</span></h2>
+    <h2>입고 기록 <span class="sub">· 알림 위치 4곳</span></h2>
     <div class="sub" id="histInfo"></div>
     <div class="hist-filter" id="histFilter"></div>
+    <div class="hist-filter" id="histPackFilter" style="margin-top:-4px"></div>
     <div id="histPattern"></div>
     <div id="histList"></div>
   </section>
@@ -464,7 +465,7 @@ $("quick").addEventListener("click", (e) => {
 });
 
 // ── 입고 기록 (알림 봇이 확인할 때마다 docs/history.json에 쌓아요) ──
-let histData = null, histLoc = "전체";
+let histData = null, histLoc = "전체", histPack = "전체 팩";
 const DAYS = ["일", "월", "화", "수", "목", "금", "토"];
 $("histBtn").onclick = async () => {
   const box = $("history");
@@ -475,14 +476,17 @@ $("histBtn").onclick = async () => {
   renderHistory();
 };
 $("histFilter").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { histLoc = b.dataset.loc; renderHistory(); } });
+$("histPackFilter").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { histPack = b.dataset.pack; renderHistory(); } });
 function renderHistory() {
   const all = (histData.events || []).slice().sort((a, b) => (a.t < b.t ? 1 : -1));
   const locs = ["전체", ...QUICK.map((q) => q.name)];
   $("histFilter").innerHTML = locs.map((l) => `<button class="light ${l === histLoc ? "on" : ""}" data-loc="${l}">${l}</button>`).join("");
-  const ev = histLoc === "전체" ? all : all.filter((e) => e.loc === histLoc);
+  const packs = ["전체 팩", ...new Set(["30주년", ...all.map((e) => e.pack || "30주년")])];
+  $("histPackFilter").innerHTML = packs.map((p) => `<button class="light ${p === histPack ? "on" : ""}" data-pack="${esc(p)}">${esc(p)}</button>`).join("");
+  const ev = all.filter((e) => (histLoc === "전체" || e.loc === histLoc) && (histPack === "전체 팩" || (e.pack || "30주년") === histPack));
   const since = histData.since ? new Date(histData.since) : null, upd = histData.updatedAt ? new Date(histData.updatedAt) : null;
   const fmt = (d) => `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-  $("histInfo").textContent = `${since ? fmt(since) + "부터 기록 중" : ""}${upd ? ` · 마지막 확인 ${fmt(upd)}` : ""} · 이마트24 9999는 기록하지 않아요`;
+  $("histInfo").textContent = `${since ? fmt(since) + "부터 기록 중" : ""}${upd ? ` · 마지막 확인 ${fmt(upd)}` : ""} · 30주년은 알림 때마다, 다른 팩은 3시간마다 확인 · 이마트24 9999는 기록하지 않아요`;
 
   const ins = ev.filter((e) => e.type === "입고");
   if (ins.length >= 3) { // 요일별 입고 횟수 + 가장 많은 시간대
@@ -499,7 +503,7 @@ function renderHistory() {
     const d = new Date(e.t), key = `${d.getMonth() + 1}월 ${d.getDate()}일 (${DAYS[d.getDay()]})`;
     if (key !== day) { html += `<div class="hist-day">${key}</div>`; day = key; }
     html += `<div class="hist-row"><span class="time">${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}</span>
-      <span class="brand b-${e.chain}">${LABEL[e.chain]}</span><span class="what">${esc(e.store)}<div class="dist">${esc(e.loc)}</div></span>
+      <span class="brand b-${e.chain}">${LABEL[e.chain]}</span><span class="what">${esc(e.store)}<div class="dist">${esc(e.pack || "30주년")} · ${esc(e.loc)}</div></span>
       <span class="${e.type === "입고" ? "tag-in" : "tag-out"}">${e.type === "입고" ? `입고 ${e.qty}개` : "품절"}</span></div>`;
   }
   $("histList").innerHTML = html;

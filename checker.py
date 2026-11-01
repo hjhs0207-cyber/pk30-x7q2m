@@ -15,6 +15,7 @@ import os
 import smtplib
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -29,6 +30,7 @@ PRODUCT_CACHE_HOURS = 12
 UNCERTAIN_QTY = 999        # 이 이상(이마트24 9999)은 실제 수량이 아니라고 봐요
 ALERT_COOLDOWN_HOURS = 6   # 같은 매장은 이 시간 안에 다시 알리지 않아요
 HISTORY_DAYS = 90          # 입고 기록 보관 기간
+PACK_HISTORY_HOURS = 3     # 다른 확장팩은 이 간격으로만 확인해서 기록해요 (알림 없음)
 DEBUG = {}  # 조회 실패 원인을 docs/debug.json에 남겨요 (로그 대신 확인용)
 
 
@@ -378,6 +380,100 @@ def recipients(cfg):
     return out
 
 
+# ───────────── 4) 다른 확장팩 입고 기록 (3시간마다, 알림 없음) ─────────────
+def emart24_near_codes(cfg, loc, cache, now):
+    """위치별 1km 안 이마트24 매장 코드 (하루 한 번만 새로 찾아요)."""
+    c = cache.get(loc["id"]) or {}
+    if c.get("at") and now - datetime.fromisoformat(c["at"]) < timedelta(hours=24) and c.get("stores"):
+        return c["stores"]
+    found = {}
+    for kw in loc.get("sevenKeywords", []):
+        try:
+            d = api(cfg["apiBase"], "/api/emart24/stores", {"keyword": kw, "lat": loc["lat"], "lng": loc["lng"], "limit": 50})
+        except Exception:
+            continue
+        for st in d.get("stores", []):
+            dist = store_distance(st, loc)
+            if dist is not None and dist <= cfg["radiusM"] and st.get("storeCode"):
+                found[str(st["storeCode"])] = {"name": st.get("storeName", ""), "d": round(dist)}
+    if found:
+        cache[loc["id"]] = {"at": now.isoformat(timespec="seconds"), "stores": found}
+    return found or c.get("stores") or {}
+
+
+def pack_stock(cfg, chain, prod, loc, e24):
+    """확장팩 하나·위치 하나·편의점 하나의 1km 안 재고 → [row]"""
+    if chain == "emart24":
+        if not e24:
+            return []
+        d = api(cfg["apiBase"], "/api/emart24/inventory", {"pluCd": prod["id"], "bizNoArr": ",".join(e24), "storeLimit": len(e24)})
+        qty = {str(s.get("bizNo")): num(s.get("bizQty")) for s in (d.get("inventory") or {}).get("stores") or d.get("stores", [])}
+        return [row("emart24", code, v["name"], qty.get(code, 0), v["d"]) for code, v in e24.items()]
+    if chain == "seveneleven":
+        out = {}
+        for kw in loc.get("sevenKeywords", []):
+            try:
+                d = api(cfg["apiBase"], "/api/seveneleven/inventory", {"keyword": prod["name"], "storeKeyword": kw, "storeLimit": 100}, retries=2)
+            except Exception:
+                continue
+            got = (d.get("product") or {}).get("itemName") or ""
+            if prod.get("fallback") and (not got or norm(prod["name"]) not in norm(got)):
+                return []
+            if not d.get("stockAvailable", True):
+                continue
+            for st in (d.get("inventory") or {}).get("stores", []):
+                dist = store_distance(st, loc, center_query=False)
+                if dist is not None and dist <= cfg["radiusM"] and st.get("storeCode"):
+                    out[str(st["storeCode"])] = row("seveneleven", st["storeCode"], st.get("storeName"), num(st.get("stockQuantity")), dist)
+        return list(out.values())
+    return stock_by_center(cfg, chain, prod, loc)
+
+
+def record_pack_history(cfg, state, history, now):
+    last = state.get("packHistoryAt")
+    if last and now - datetime.fromisoformat(last) < timedelta(hours=PACK_HISTORY_HOURS) - timedelta(minutes=10):
+        return
+    packs = (load_json(ROOT / "docs" / "packs.json", {}).get("items") or {})
+    if not packs:
+        return
+    e24_cache = state.setdefault("emart24Near", {})
+    e24 = {loc["id"]: emart24_near_codes(cfg, loc, e24_cache, now) for loc in cfg["locations"]}
+    jobs = [(pack, chain, prod, loc) for pack, chains in packs.items() for chain, prod in chains.items()
+            if prod and (prod.get("id") or chain == "seveneleven") for loc in cfg["locations"]]
+
+    def run(job):
+        pack, chain, prod, loc = job
+        try:
+            return job, pack_stock(cfg, chain, prod, loc, e24[loc["id"]])
+        except Exception as e:
+            return job, e
+
+    old = state.get("packQty", {})
+    new = dict(old)
+    stamp, fails, logged = now.isoformat(timespec="minutes"), 0, set()
+    with ThreadPoolExecutor(max_workers=4) as ex:
+        for (pack, chain, prod, loc), rows in ex.map(run, jobs):
+            if isinstance(rows, Exception):
+                fails += 1
+                continue
+            for r in rows:
+                if r["qty"] is None or r["qty"] >= UNCERTAIN_QTY:
+                    continue
+                key = f"{pack}|{chain}|{r['code']}"
+                was = old.get(key)
+                new[key] = r["qty"]
+                if key in logged or was is None:  # 처음 본 매장은 기준값만 저장
+                    continue
+                if was <= 0 < r["qty"] or (was > 0 and r["qty"] == 0):
+                    history.append({"t": stamp, "loc": loc["name"], "chain": chain, "store": r["name"],
+                                    "qty": r["qty"] if r["qty"] > 0 else was,
+                                    "type": "입고" if r["qty"] > 0 else "품절", "pack": pack})
+                    logged.add(key)
+    state["packQty"], state["packHistoryAt"] = new, now.isoformat(timespec="seconds")
+    print(f"[확장팩 기록] {len(jobs)}건 확인, 실패 {fails}건, 새 기록 {len(logged)}건")
+    DEBUG["packHistory"] = {"jobs": len(jobs), "fails": fails, "events": len(logged)}
+
+
 def main():
     cfg = load_json(ROOT / "config.json", None)
     state = load_json(ROOT / "state.json", {})
@@ -467,6 +563,11 @@ def main():
     for rows in restocks.values():
         for r in rows:
             last_alert[f"{r['chain']}|{r['code']}"] = now.isoformat(timespec="seconds")
+    pack_state = {k: state.get(k) for k in ("packQty", "packHistoryAt", "emart24Near") if state.get(k) is not None}
+    try:
+        record_pack_history(cfg, pack_state, history, now)
+    except Exception as e:
+        print(f"[확장팩 기록] 실패: {e}")
     keep = (now - timedelta(days=HISTORY_DAYS)).isoformat()
     history = [e for e in history if e["t"] >= keep[:16]]
     save_json(hist_path, {"since": load_json(hist_path, {}).get("since") or "2026-10-31T21:00+09:00",
@@ -475,7 +576,7 @@ def main():
     last_alert = {k: v for k, v in last_alert.items() if datetime.fromisoformat(v) > cutoff}
 
     state = {"qty": new_qty, "lastRun": now.isoformat(timespec="seconds"),
-             "locStarted": sorted(loc_started), "mailStarted": sorted(started), "lastAlert": last_alert}
+             "locStarted": sorted(loc_started), "mailStarted": sorted(started), "lastAlert": last_alert, **pack_state}
     save_json(ROOT / "state.json", state)
     save_json(ROOT / "docs" / "debug.json", {"at": now.isoformat(timespec="seconds"), **DEBUG})
     save_json(ROOT / "docs" / "status.json", {

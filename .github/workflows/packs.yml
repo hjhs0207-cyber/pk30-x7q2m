@@ -1,0 +1,32 @@
+name: 확장팩 입고 기록
+
+on:
+  schedule:
+    - cron: "17 */3 * * *"   # 3시간마다 (알림 없음, 기록만)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pack-history
+  cancel-in-progress: false
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 확장팩 재고 확인 & 기록
+        run: python checker.py --packs
+      - name: 기록 저장
+        run: |
+          git config user.name "stock-bot"
+          git config user.email "stock-bot@users.noreply.github.com"
+          git add pack_state.json docs/history_packs.json
+          git diff --cached --quiet || git commit -m "확장팩 입고 기록"
+          for i in 1 2 3; do git pull --rebase --autostash && git push && break; sleep 5; done

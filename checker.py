@@ -31,6 +31,7 @@ UNCERTAIN_QTY = 999        # 이 이상(이마트24 9999)은 실제 수량이 �
 ALERT_COOLDOWN_HOURS = 6   # 같은 매장은 이 시간 안에 다시 알리지 않아요
 HISTORY_DAYS = 90          # 입고 기록 보관 기간
 PACK_HISTORY_HOURS = 3     # 다른 확장팩은 이 간격으로만 확인해서 기록해요 (알림 없음)
+PACK_TIME_LIMIT_SEC = 600  # 확장팩 기록은 최대 10분만
 DEBUG = {}  # 조회 실패 원인을 docs/debug.json에 남겨요 (로그 대신 확인용)
 
 
@@ -47,14 +48,14 @@ def save_json(path, data):
     Path(path).write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
-def api(base, path, params, retries=1):
+def api(base, path, params, retries=1, timeout=60):
     qs = urllib.parse.urlencode({k: v for k, v in params.items() if v not in (None, "")})
     url = f"{base.rstrip('/')}{path}?{qs}"
     err = None
     for attempt in range(retries + 1):
         try:
             req = urllib.request.Request(url, headers={"User-Agent": "pokecard30-alert/1.0", "Accept": "application/json"})
-            with urllib.request.urlopen(req, timeout=60) as r:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
                 body = json.loads(r.read().decode("utf-8"))
             if not body.get("success", False):
                 e = body.get("error") or {}
@@ -389,7 +390,7 @@ def emart24_near_codes(cfg, loc, cache, now):
     found = {}
     for kw in loc.get("sevenKeywords", []):
         try:
-            d = api(cfg["apiBase"], "/api/emart24/stores", {"keyword": kw, "lat": loc["lat"], "lng": loc["lng"], "limit": 50})
+            d = api(cfg["apiBase"], "/api/emart24/stores", {"keyword": kw, "lat": loc["lat"], "lng": loc["lng"], "limit": 50}, retries=0, timeout=20)
         except Exception:
             continue
         for st in d.get("stores", []):
@@ -406,14 +407,14 @@ def pack_stock(cfg, chain, prod, loc, e24):
     if chain == "emart24":
         if not e24:
             return []
-        d = api(cfg["apiBase"], "/api/emart24/inventory", {"pluCd": prod["id"], "bizNoArr": ",".join(e24), "storeLimit": len(e24)})
+        d = api(cfg["apiBase"], "/api/emart24/inventory", {"pluCd": prod["id"], "bizNoArr": ",".join(e24), "storeLimit": len(e24)}, retries=0, timeout=25)
         qty = {str(s.get("bizNo")): num(s.get("bizQty")) for s in (d.get("inventory") or {}).get("stores") or d.get("stores", [])}
         return [row("emart24", code, v["name"], qty.get(code, 0), v["d"]) for code, v in e24.items()]
     if chain == "seveneleven":
         out = {}
         for kw in loc.get("sevenKeywords", []):
             try:
-                d = api(cfg["apiBase"], "/api/seveneleven/inventory", {"keyword": prod["name"], "storeKeyword": kw, "storeLimit": 100}, retries=2)
+                d = api(cfg["apiBase"], "/api/seveneleven/inventory", {"keyword": prod["name"], "storeKeyword": kw, "storeLimit": 100}, retries=0, timeout=25)
             except Exception:
                 continue
             got = (d.get("product") or {}).get("itemName") or ""
@@ -426,7 +427,22 @@ def pack_stock(cfg, chain, prod, loc, e24):
                 if dist is not None and dist <= cfg["radiusM"] and st.get("storeCode"):
                     out[str(st["storeCode"])] = row("seveneleven", st["storeCode"], st.get("storeName"), num(st.get("stockQuantity")), dist)
         return list(out.values())
-    return stock_by_center(cfg, chain, prod, loc)
+    base, limit = cfg["apiBase"], cfg["storeLimit"]
+    if chain == "gs25":
+        d = api(base, "/api/gs25/inventory", {"itemCode": prod["id"], "lat": loc["lat"], "lng": loc["lng"], "storeLimit": limit}, retries=0, timeout=25)
+        stores, ck, qk = (d.get("inventory") or {}).get("stores", []), "storeCode", "realStockQuantity"
+    else:  # cu
+        d = api(base, "/api/cu/inventory", {"keyword": prod["name"], "lat": loc["lat"], "lng": loc["lng"], "storeLimit": limit, "size": 20}, retries=0, timeout=25)
+        ns = d.get("nearbyStores") or {}
+        if ns.get("stockItemCode") and str(ns["stockItemCode"]) != prod["id"]:
+            raise RuntimeError("CU 상품 불일치")
+        stores, ck, qk = ns.get("stores", []), "storeCode", "stock"
+    out = []
+    for st in stores:
+        dist = store_distance(st, loc)
+        if dist is not None and dist <= cfg["radiusM"] and st.get(ck):
+            out.append(row(chain, st[ck], st.get("storeName"), num(st.get(qk)), dist))
+    return out
 
 
 def record_pack_history(cfg, state, history, now):
@@ -441,8 +457,12 @@ def record_pack_history(cfg, state, history, now):
     jobs = [(pack, chain, prod, loc) for pack, chains in packs.items() for chain, prod in chains.items()
             if prod and (prod.get("id") or chain == "seveneleven") for loc in cfg["locations"]]
 
+    deadline = time.monotonic() + PACK_TIME_LIMIT_SEC
+
     def run(job):
         pack, chain, prod, loc = job
+        if time.monotonic() > deadline:
+            return job, TimeoutError("시간 초과로 건너뜀")
         try:
             return job, pack_stock(cfg, chain, prod, loc, e24[loc["id"]])
         except Exception as e:
@@ -563,11 +583,6 @@ def main():
     for rows in restocks.values():
         for r in rows:
             last_alert[f"{r['chain']}|{r['code']}"] = now.isoformat(timespec="seconds")
-    pack_state = {k: state.get(k) for k in ("packQty", "packHistoryAt", "emart24Near") if state.get(k) is not None}
-    try:
-        record_pack_history(cfg, pack_state, history, now)
-    except Exception as e:
-        print(f"[확장팩 기록] 실패: {e}")
     keep = (now - timedelta(days=HISTORY_DAYS)).isoformat()
     history = [e for e in history if e["t"] >= keep[:16]]
     save_json(hist_path, {"since": load_json(hist_path, {}).get("since") or "2026-10-31T21:00+09:00",
@@ -576,7 +591,7 @@ def main():
     last_alert = {k: v for k, v in last_alert.items() if datetime.fromisoformat(v) > cutoff}
 
     state = {"qty": new_qty, "lastRun": now.isoformat(timespec="seconds"),
-             "locStarted": sorted(loc_started), "mailStarted": sorted(started), "lastAlert": last_alert, **pack_state}
+             "locStarted": sorted(loc_started), "mailStarted": sorted(started), "lastAlert": last_alert}
     save_json(ROOT / "state.json", state)
     save_json(ROOT / "docs" / "debug.json", {"at": now.isoformat(timespec="seconds"), **DEBUG})
     save_json(ROOT / "docs" / "status.json", {
@@ -586,5 +601,21 @@ def main():
     })
 
 
+def main_packs():
+    """확장팩 입고 기록만 (packs.yml이 3시간마다 실행). 30주년 알림과 파일을 나눠서 서로 안 막혀요."""
+    cfg = load_json(ROOT / "config.json", None)
+    now = datetime.now(KST)
+    pstate = load_json(ROOT / "pack_state.json", {})
+    hpath = ROOT / "docs" / "history_packs.json"
+    events = load_json(hpath, {}).get("events", [])
+    pstate.pop("packHistoryAt", None)  # 이 작업은 예약된 때만 돌아서 간격 확인은 생략
+    record_pack_history(cfg, pstate, events, now)
+    keep = (now - timedelta(days=HISTORY_DAYS)).isoformat()[:16]
+    save_json(hpath, {"since": load_json(hpath, {}).get("since") or now.isoformat(timespec="minutes"),
+                      "updatedAt": now.isoformat(timespec="minutes"), "events": [e for e in events if e["t"] >= keep],
+                      "stats": DEBUG.get("packHistory")})
+    save_json(ROOT / "pack_state.json", pstate)
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main_packs() if "--packs" in sys.argv else main())

@@ -472,7 +472,10 @@ $("histBtn").onclick = async () => {
   box.hidden = !box.hidden;
   $("histBtn").textContent = box.hidden ? "📋 입고 기록 보기" : "📋 입고 기록 닫기";
   if (box.hidden) return;
-  try { histData = await (await fetch("history.json", { cache: "no-store" })).json(); } catch { histData = { events: [] }; }
+  const load = async (f) => { try { return await (await fetch(f, { cache: "no-store" })).json(); } catch { return {}; } };
+  const [main, packs] = await Promise.all([load("history.json"), load("history_packs.json")]); // 30주년 / 다른 팩
+  histData = { since: main.since, updatedAt: main.updatedAt, packsUpdatedAt: packs.updatedAt,
+               events: [...(main.events || []), ...(packs.events || [])] };
   renderHistory();
 };
 $("histFilter").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { histLoc = b.dataset.loc; renderHistory(); } });
@@ -486,7 +489,8 @@ function renderHistory() {
   const ev = all.filter((e) => (histLoc === "전체" || e.loc === histLoc) && (histPack === "전체 팩" || (e.pack || "30주년") === histPack));
   const since = histData.since ? new Date(histData.since) : null, upd = histData.updatedAt ? new Date(histData.updatedAt) : null;
   const fmt = (d) => `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-  $("histInfo").textContent = `${since ? fmt(since) + "부터 기록 중" : ""}${upd ? ` · 마지막 확인 ${fmt(upd)}` : ""} · 30주년은 알림 때마다, 다른 팩은 3시간마다 확인 · 이마트24 9999는 기록하지 않아요`;
+  const pupd = histData.packsUpdatedAt ? new Date(histData.packsUpdatedAt) : null;
+  $("histInfo").textContent = `${since ? fmt(since) + "부터 기록 중" : ""} · 마지막 확인: 30주년 ${upd ? fmt(upd) : "-"}, 다른 팩 ${pupd ? fmt(pupd) : "아직 없음"} (3시간마다) · 이마트24 9999는 기록하지 않아요`;
 
   const ins = ev.filter((e) => e.type === "입고");
   if (ins.length >= 3) { // 요일별 입고 횟수 + 가장 많은 시간대

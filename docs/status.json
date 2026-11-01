@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-01T09:10:59+09:00",
+  "checkedAt": "2026-11-01T10:31:53+09:00",
   "locations": {
     "옥수역": {
       "GS25": [
@@ -131,8 +131,15 @@
           "chain": "emart24",
           "code": "25869",
           "name": "옥수하이츠점",
-          "qty": 0,
+          "qty": 9999,
           "distanceM": 124
+        },
+        {
+          "chain": "emart24",
+          "code": "27675",
+          "name": "성동금호점",
+          "qty": 9999,
+          "distanceM": 894
         }
       ]
     },
@@ -901,6 +908,13 @@
         },
         {
           "chain": "cu",
+          "code": "56024",
+          "name": "중화일동점",
+          "qty": 0,
+          "distanceM": 625
+        },
+        {
+          "chain": "cu",
           "code": "38727",
           "name": "중랑우정점",
           "qty": 0,
@@ -1054,28 +1068,92 @@
           "distanceM": 977
         }
       ],
-      "세븐일레븐": "조회 실패",
+      "세븐일레븐": [
+        {
+          "chain": "seveneleven",
+          "code": "64441",
+          "name": "상봉세이지움점",
+          "qty": -1,
+          "distanceM": 438
+        },
+        {
+          "chain": "seveneleven",
+          "code": "17520",
+          "name": "상봉본점",
+          "qty": -1,
+          "distanceM": 121
+        },
+        {
+          "chain": "seveneleven",
+          "code": "18919",
+          "name": "상봉점",
+          "qty": 0,
+          "distanceM": 392
+        },
+        {
+          "chain": "seveneleven",
+          "code": "51531",
+          "name": "중랑스마트빌점",
+          "qty": -1,
+          "distanceM": 684
+        },
+        {
+          "chain": "seveneleven",
+          "code": "18824",
+          "name": "상봉2점",
+          "qty": 0,
+          "distanceM": 370
+        },
+        {
+          "chain": "seveneleven",
+          "code": "68077",
+          "name": "상봉코스트코점",
+          "qty": 0,
+          "distanceM": 444
+        },
+        {
+          "chain": "seveneleven",
+          "code": "54200",
+          "name": "상봉망우점",
+          "qty": 0,
+          "distanceM": 722
+        },
+        {
+          "chain": "seveneleven",
+          "code": "17452",
+          "name": "상봉이노시티점",
+          "qty": 0,
+          "distanceM": 602
+        },
+        {
+          "chain": "seveneleven",
+          "code": "68892",
+          "name": "중랑건영점",
+          "qty": -1,
+          "distanceM": 795
+        },
+        {
+          "chain": "seveneleven",
+          "code": "18238",
+          "name": "망우본점",
+          "qty": 0,
+          "distanceM": 913
+        }
+      ],
       "이마트24": [
-        {
-          "chain": "emart24",
-          "code": "30072",
-          "name": "상봉역점",
-          "qty": 9999,
-          "distanceM": 144
-        },
-        {
-          "chain": "emart24",
-          "code": "24751",
-          "name": "R상봉스타점",
-          "qty": 9999,
-          "distanceM": 273
-        },
         {
           "chain": "emart24",
           "code": "27025",
           "name": "상봉대광점",
-          "qty": 9999,
+          "qty": 0,
           "distanceM": 484
+        },
+        {
+          "chain": "emart24",
+          "code": "30072",
+          "name": "상봉역점",
+          "qty": 0,
+          "distanceM": 144
         }
       ]
     },
@@ -1434,7 +1512,22 @@
           "distanceM": 987
         }
       ],
-      "세븐일레븐": "조회 실패",
+      "세븐일레븐": [
+        {
+          "chain": "seveneleven",
+          "code": "13301",
+          "name": "부천송내엔파트점",
+          "qty": -1,
+          "distanceM": 562
+        },
+        {
+          "chain": "seveneleven",
+          "code": "16814",
+          "name": "부천중동석천로점",
+          "qty": 0,
+          "distanceM": 926
+        }
+      ],
       "이마트24": [
         {
           "chain": "emart24",

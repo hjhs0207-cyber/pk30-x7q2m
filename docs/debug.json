@@ -1,10 +1,13 @@
 {
-  "at": "2026-11-01T23:56:11+09:00",
+  "at": "2026-11-02T00:33:11+09:00",
   "sevenKeywordStats": {
     "옥수역|옥수": "수량 미제공 → 재고 없음으로 처리",
-    "옥수역|금호": "매장 30곳 중 1km 안 0곳"
+    "중동역|송내": "매장 11곳 중 1km 안 5곳"
   },
   "sevenKeywordErrors": {
+    "옥수역": [
+      "금호: HTTP 502"
+    ],
     "공릉역": [
       "공릉: HTTP 502"
     ],
@@ -14,13 +17,11 @@
     ],
     "중동역": [
       "중동: HTTP 502",
-      "상동: HTTP 502",
-      "송내: HTTP 502"
+      "상동: HTTP 502"
     ]
   },
   "stockErrors": {
     "공릉역|seveneleven": "공릉: HTTP 502",
-    "상봉역|seveneleven": "상봉: HTTP 502; 망우: HTTP 502",
-    "중동역|seveneleven": "중동: HTTP 502; 상동: HTTP 502; 송내: HTTP 502"
+    "상봉역|seveneleven": "상봉: HTTP 502; 망우: HTTP 502"
   }
 }

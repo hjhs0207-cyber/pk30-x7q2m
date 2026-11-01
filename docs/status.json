@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-01T15:06:54+09:00",
+  "checkedAt": "2026-11-01T16:06:58+09:00",
   "locations": {
     "옥수역": {
       "GS25": [
@@ -126,337 +126,33 @@
         }
       ],
       "세븐일레븐": [],
-      "이마트24": [
-        {
-          "chain": "emart24",
-          "code": "25869",
-          "name": "옥수하이츠점",
-          "qty": 0,
-          "distanceM": 124
-        },
-        {
-          "chain": "emart24",
-          "code": "27675",
-          "name": "성동금호점",
-          "qty": 9999,
-          "distanceM": 894
-        }
-      ]
+      "이마트24": "조회 실패"
     },
     "공릉역": {
-      "GS25": [
-        {
-          "chain": "gs25",
-          "code": "VHN76",
-          "name": "S공릉역점",
-          "qty": 0,
-          "distanceM": 47
-        },
-        {
-          "chain": "gs25",
-          "code": "VN110",
-          "name": "공릉역점",
-          "qty": 0,
-          "distanceM": 106
-        },
-        {
-          "chain": "gs25",
-          "code": "VHR82",
-          "name": "공릉제일점",
-          "qty": 0,
-          "distanceM": 127
-        },
-        {
-          "chain": "gs25",
-          "code": "VNP26",
-          "name": "공릉영진점",
-          "qty": 0,
-          "distanceM": 176
-        },
-        {
-          "chain": "gs25",
-          "code": "V7W56",
-          "name": "공릉대성점",
-          "qty": 0,
-          "distanceM": 227
-        },
-        {
-          "chain": "gs25",
-          "code": "VMP63",
-          "name": "공릉시장점",
-          "qty": 0,
-          "distanceM": 318
-        },
-        {
-          "chain": "gs25",
-          "code": "V7Y27",
-          "name": "공릉문화점",
-          "qty": 0,
-          "distanceM": 425
-        },
-        {
-          "chain": "gs25",
-          "code": "VP757",
-          "name": "공릉타운점",
-          "qty": 0,
-          "distanceM": 488
-        },
-        {
-          "chain": "gs25",
-          "code": "V2975",
-          "name": "서울과기대점",
-          "qty": 0,
-          "distanceM": 490
-        },
-        {
-          "chain": "gs25",
-          "code": "VMB22",
-          "name": "노원공릉점",
-          "qty": 0,
-          "distanceM": 546
-        },
-        {
-          "chain": "gs25",
-          "code": "VO977",
-          "name": "월계미성점",
-          "qty": 0,
-          "distanceM": 653
-        },
-        {
-          "chain": "gs25",
-          "code": "V3W68",
-          "name": "공릉중앙점",
-          "qty": 0,
-          "distanceM": 662
-        },
-        {
-          "chain": "gs25",
-          "code": "V6W43",
-          "name": "공릉에이스점",
-          "qty": 0,
-          "distanceM": 679
-        },
-        {
-          "chain": "gs25",
-          "code": "VF914",
-          "name": "S태릉입구역점",
-          "qty": 0,
-          "distanceM": 744
-        },
-        {
-          "chain": "gs25",
-          "code": "V8Z75",
-          "name": "공릉태강점",
-          "qty": 0,
-          "distanceM": 789
-        },
-        {
-          "chain": "gs25",
-          "code": "VR095",
-          "name": "공릉원룸점",
-          "qty": 0,
-          "distanceM": 820
-        },
-        {
-          "chain": "gs25",
-          "code": "VMZ83",
-          "name": "태릉해링턴점",
-          "qty": 0,
-          "distanceM": 841
-        },
-        {
-          "chain": "gs25",
-          "code": "VW158",
-          "name": "공릉퍼스트점",
-          "qty": 0,
-          "distanceM": 915
-        },
-        {
-          "chain": "gs25",
-          "code": "VT556",
-          "name": "하계장미점",
-          "qty": 0,
-          "distanceM": 964
-        }
-      ],
-      "CU": [
-        {
-          "chain": "cu",
-          "code": "11224",
-          "name": "공릉사거리점",
-          "qty": 0,
-          "distanceM": 64
-        },
-        {
-          "chain": "cu",
-          "code": "39027",
-          "name": "공릉모아점",
-          "qty": 0,
-          "distanceM": 95
-        },
-        {
-          "chain": "cu",
-          "code": "19076",
-          "name": "공릉스타점",
-          "qty": 0,
-          "distanceM": 246
-        },
-        {
-          "chain": "cu",
-          "code": "42678",
-          "name": "공릉마중점",
-          "qty": 0,
-          "distanceM": 285
-        },
-        {
-          "chain": "cu",
-          "code": "28033",
-          "name": "공릉플러스점",
-          "qty": 0,
-          "distanceM": 348
-        },
-        {
-          "chain": "cu",
-          "code": "21315",
-          "name": "공릉과기대점",
-          "qty": 0,
-          "distanceM": 365
-        },
-        {
-          "chain": "cu",
-          "code": "55584",
-          "name": "공릉브릿지점",
-          "qty": 0,
-          "distanceM": 389
-        },
-        {
-          "chain": "cu",
-          "code": "53530",
-          "name": "공릉라이프점",
-          "qty": 0,
-          "distanceM": 419
-        },
-        {
-          "chain": "cu",
-          "code": "51630",
-          "name": "공릉행복점",
-          "qty": 0,
-          "distanceM": 478
-        },
-        {
-          "chain": "cu",
-          "code": "22797",
-          "name": "서울과기대점",
-          "qty": 0,
-          "distanceM": 543
-        },
-        {
-          "chain": "cu",
-          "code": "39744",
-          "name": "공릉철길공원점",
-          "qty": 0,
-          "distanceM": 550
-        },
-        {
-          "chain": "cu",
-          "code": "45764",
-          "name": "공릉녹주점",
-          "qty": 0,
-          "distanceM": 553
-        },
-        {
-          "chain": "cu",
-          "code": "41225",
-          "name": "공릉건설점",
-          "qty": 0,
-          "distanceM": 555
-        },
-        {
-          "chain": "cu",
-          "code": "51318",
-          "name": "월계삼호점",
-          "qty": 0,
-          "distanceM": 691
-        },
-        {
-          "chain": "cu",
-          "code": "49975",
-          "name": "공릉그랜드점",
-          "qty": 0,
-          "distanceM": 738
-        },
-        {
-          "chain": "cu",
-          "code": "22997",
-          "name": "서울과학기술대2관점",
-          "qty": 0,
-          "distanceM": 794
-        },
-        {
-          "chain": "cu",
-          "code": "30630",
-          "name": "월계서광점",
-          "qty": 0,
-          "distanceM": 804
-        },
-        {
-          "chain": "cu",
-          "code": "42340",
-          "name": "태릉역점",
-          "qty": 0,
-          "distanceM": 817
-        },
-        {
-          "chain": "cu",
-          "code": "44002",
-          "name": "태릉엠코점",
-          "qty": 0,
-          "distanceM": 837
-        },
-        {
-          "chain": "cu",
-          "code": "35932",
-          "name": "공릉화랑점",
-          "qty": 0,
-          "distanceM": 879
-        }
-      ],
+      "GS25": "조회 실패",
+      "CU": "조회 실패",
       "세븐일레븐": "조회 실패",
       "이마트24": [
         {
           "chain": "emart24",
-          "code": "28390",
-          "name": "공릉개미공원점",
-          "qty": 9999,
-          "distanceM": 726
-        },
-        {
-          "chain": "emart24",
           "code": "03369",
           "name": "태릉입구역점",
-          "qty": 9999,
+          "qty": 0,
           "distanceM": 874
         },
         {
           "chain": "emart24",
           "code": "07341",
           "name": "하계타운점",
-          "qty": 9999,
+          "qty": 0,
           "distanceM": 898
         },
         {
           "chain": "emart24",
-          "code": "08265",
-          "name": "과기대수림학사점",
-          "qty": 9999,
-          "distanceM": 900
-        },
-        {
-          "chain": "emart24",
-          "code": "08266",
-          "name": "과기대누리학사점",
-          "qty": 9999,
-          "distanceM": 900
+          "code": "28390",
+          "name": "공릉개미공원점",
+          "qty": 0,
+          "distanceM": 726
         }
       ]
     },

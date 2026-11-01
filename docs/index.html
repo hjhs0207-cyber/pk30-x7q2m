@@ -36,6 +36,7 @@
   .qty.ok { color:var(--ok); background:var(--okbg); padding:6px 10px; border-radius:8px; font-size:16px; text-align:center; }
   .qty small { display:block; font-size:10px; font-weight:500; opacity:.8; }
   .qty.no { color:var(--no); }
+  .qty.unk { color:#6b6b70; background:#efeeea; padding:4px 10px; border-radius:8px; text-align:center; }
   details { margin-top:14px; }
   summary { cursor:pointer; color:var(--sub); font-size:14px; }
   .packs { background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px; margin:12px 0; }
@@ -291,7 +292,7 @@ async function stock(chain, p, c) {
 // 이마트24는 실제 수량 대신 9999를 보내와서 "있음"으로만 보여줘요
 function qtyLabel(q) {
   if (q == null) return "확인 불가";
-  if (q >= 999) return "재고 있음<small>수량 비공개</small>";
+  if (q >= 999) return `${q}<small>수량 확인 불가</small>`;
   return q > 0 ? `재고 ${q}개` : "없음";
 }
 const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -363,10 +364,13 @@ async function lookup(c, label) {
 
   const all = [...stores.values()];
   for (const s of all) s.items.sort((a, b) => (b.qty || 0) - (a.qty || 0));
-  const has = all.filter((s) => s.items.some((i) => (i.qty || 0) > 0)).sort((a, b) => a.d - b.d);
+  const isReal = (s) => s.items.some((i) => i.qty > 0 && i.qty < 999);
+  const has = all.filter((s) => s.items.some((i) => (i.qty || 0) > 0)).sort((a, b) => (isReal(b) - isReal(a)) || a.d - b.d);
   const none = all.filter((s) => !s.items.some((i) => (i.qty || 0) > 0)).sort((a, b) => a.d - b.d);
   const stamp = new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" });
-  $("status").innerHTML = has.length ? `<b>${has.length}곳</b>에 재고가 있어요 · ${stamp} 기준` : `1km 안에 재고 있는 매장이 없어요 · ${stamp} 기준`;
+  const real = has.filter((s) => s.items.some((i) => i.qty > 0 && i.qty < 999)).length, unk = has.length - real;
+  $("status").innerHTML = (real ? `<b>${real}곳</b>에 재고가 있어요` : "실제 수량이 확인된 매장은 없어요")
+    + (unk ? ` · 이마트24 9999(수량 확인 불가) ${unk}곳` : "") + ` · ${stamp} 기준`;
 
   const chips = [];
   for (const chain of Object.keys(LABEL)) {
@@ -381,13 +385,13 @@ async function lookup(c, label) {
       <div class="store-top"><span class="brand b-${s.chain}">${LABEL[s.chain]}</span>
         <div class="name">${esc(s.name)}<div class="dist">${Math.round(s.d)}m${s.phone ? ` · <a href="tel:${esc(s.phone)}">${esc(s.phone)}</a>` : ""}</div></div></div>
       <div class="items">${s.items.filter((i) => out || (i.qty || 0) > 0).map((i) =>
-        `<div class="item"><span>${esc(i.pack)}</span><span class="qty ${(i.qty || 0) > 0 ? "ok" : "no"}">${qtyLabel(i.qty)}</span></div>`).join("")}</div></div>`;
+        `<div class="item"><span>${esc(i.pack)}</span><span class="qty ${i.qty >= 999 ? "unk" : (i.qty || 0) > 0 ? "ok" : "no"}">${qtyLabel(i.qty)}</span></div>`).join("")}</div></div>`;
   $("instock").innerHTML = has.map((s) => html(s, false)).join("");
   if (none.length) { $("outWrap").hidden = false; $("outSum").textContent = `재고 없는 매장 ${none.length}곳 보기`; $("outstock").innerHTML = none.map((s) => html(s, true)).join(""); }
   for (const s of all) if (s.lat != null) {
     const ok = s.items.filter((i) => (i.qty || 0) > 0);
     L.circleMarker([s.lat, s.lng], { radius: ok.length ? 8 : 5, color: ok.length ? "#1f8a4c" : "#9a9aa0", fillOpacity: ok.length ? 0.9 : 0.4, weight: 1 })
-      .bindPopup(`${LABEL[s.chain]} ${esc(s.name)}<br>${ok.length ? ok.map((i) => `${esc(i.pack)}: <b>${i.qty >= 999 ? "있음" : i.qty + "개"}</b>`).join("<br>") : "재고 없음"}`).addTo(storeLayer);
+      .bindPopup(`${LABEL[s.chain]} ${esc(s.name)}<br>${ok.length ? ok.map((i) => `${esc(i.pack)}: <b>${i.qty >= 999 ? i.qty : i.qty + "개"}</b>`).join("<br>") : "재고 없음"}`).addTo(storeLayer);
   }
 }
 

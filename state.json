@@ -151,7 +151,7 @@
     "seveneleven|17452": 0,
     "seveneleven|68892": -1,
     "seveneleven|18238": 0,
-    "emart24|25869": 9999,
+    "emart24|25869": 0,
     "emart24|27675": 9999,
     "emart24|03369": 9999,
     "emart24|07341": 9999,
@@ -225,7 +225,7 @@
     "seveneleven|59426": -1,
     "cu|56024": 0
   },
-  "lastRun": "2026-11-01T11:28:18+09:00",
+  "lastRun": "2026-11-01T12:20:56+09:00",
   "locStarted": [
     "gongneung",
     "jungdong",

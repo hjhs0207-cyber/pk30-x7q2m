@@ -1,7 +1,7 @@
 {
   "emart24Near": {
     "oksu": {
-      "at": "2026-11-01T13:55:43+09:00",
+      "at": "2026-11-02T16:44:36+09:00",
       "stores": {
         "25869": {
           "name": "옥수하이츠점",
@@ -14,7 +14,7 @@
       }
     },
     "gongneung": {
-      "at": "2026-11-01T13:55:43+09:00",
+      "at": "2026-11-02T16:44:36+09:00",
       "stores": {
         "02799": {
           "name": "공릉타운점",
@@ -47,7 +47,7 @@
       }
     },
     "sangbong": {
-      "at": "2026-11-01T13:55:43+09:00",
+      "at": "2026-11-02T16:44:36+09:00",
       "stores": {
         "30072": {
           "name": "상봉역점",
@@ -64,7 +64,7 @@
       }
     },
     "jungdong": {
-      "at": "2026-11-01T13:55:43+09:00",
+      "at": "2026-11-02T16:44:36+09:00",
       "stores": {
         "30771": {
           "name": "중동역점",
@@ -1857,7 +1857,30 @@
     "메가브레이브|seveneleven|10679": -1,
     "메가브레이브|seveneleven|52348": -1,
     "메가브레이브|seveneleven|13301": -1,
-    "메가브레이브|seveneleven|59426": -1
+    "메가브레이브|seveneleven|59426": -1,
+    "니힐제로|seveneleven|64584": 0,
+    "니힐제로|seveneleven|14629": -1,
+    "니힐제로|seveneleven|68704": -1,
+    "니힐제로|seveneleven|55236": -1,
+    "니힐제로|seveneleven|64557": 0,
+    "니힐제로|seveneleven|18999": -1,
+    "니힐제로|seveneleven|52245": -1,
+    "니힐제로|seveneleven|18254": -1,
+    "니힐제로|seveneleven|10375": -1,
+    "니힐제로|seveneleven|16533": -1,
+    "니힐제로|seveneleven|68257": -1,
+    "니힐제로|seveneleven|57621": 0,
+    "니힐제로|seveneleven|64441": -1,
+    "니힐제로|seveneleven|17520": -1,
+    "니힐제로|seveneleven|18919": -1,
+    "니힐제로|seveneleven|51531": 270,
+    "니힐제로|seveneleven|18824": -1,
+    "니힐제로|seveneleven|68077": -1,
+    "니힐제로|seveneleven|54200": -1,
+    "니힐제로|seveneleven|17452": -1,
+    "니힐제로|seveneleven|68892": -1,
+    "니힐제로|seveneleven|13301": -1,
+    "니힐제로|seveneleven|16814": -1
   },
-  "packHistoryAt": "2026-11-02T13:16:10+09:00"
+  "packHistoryAt": "2026-11-02T16:44:36+09:00"
 }

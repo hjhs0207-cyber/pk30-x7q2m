@@ -27,6 +27,6 @@ jobs:
         run: |
           git config user.name "stock-bot"
           git config user.email "stock-bot@users.noreply.github.com"
-          git add pack_state.json docs/history_packs.json
+          git add pack_state.json docs/history_packs.json docs/packs.json
           git diff --cached --quiet || git commit -m "확장팩 입고 기록"
           for i in 1 2 3; do git pull --rebase --autostash && git push && break; sleep 5; done

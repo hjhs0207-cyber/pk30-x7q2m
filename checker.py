@@ -117,17 +117,17 @@ def store_distance(s, loc, center_query=True):
 SEARCH_FALLBACKS = ["포켓몬카드 30주년", "포켓몬 30주년", "포켓몬카드", "포켓몬"]
 
 
-def search_items(base, chain, kw):
+def search_items(base, chain, kw, **kw_api):
     if chain == "gs25":
-        d = api(base, "/api/gs25/products", {"keyword": kw, "limit": 50})
+        d = api(base, "/api/gs25/products", {"keyword": kw, "limit": 50}, **kw_api)
         return [(p.get("itemCode"), p.get("itemName") or p.get("shortItemName")) for p in d.get("products", [])]
     if chain == "cu":
-        d = api(base, "/api/cu/inventory", {"keyword": kw, "size": 50, "storeCheck": "false"})
+        d = api(base, "/api/cu/inventory", {"keyword": kw, "size": 50, "storeCheck": "false"}, **kw_api)
         return [(p.get("itemCode"), p.get("itemName")) for p in (d.get("inventory") or {}).get("items", [])]
     if chain == "seveneleven":
-        d = api(base, "/api/seveneleven/products", {"query": kw, "size": 50})
+        d = api(base, "/api/seveneleven/products", {"query": kw, "size": 50}, **kw_api)
         return [(p.get("itemCode"), p.get("itemName")) for p in d.get("products", [])]
-    d = api(base, "/api/emart24/products", {"keyword": kw, "pageSize": 50})
+    d = api(base, "/api/emart24/products", {"keyword": kw, "pageSize": 50}, **kw_api)
     return [(p.get("pluCd"), p.get("goodsName")) for p in d.get("products", [])]
 
 
@@ -219,40 +219,47 @@ def resolve_packs(cfg, now):
     found = {p: {} for p in packs}
     errors = {}
     t0 = time.monotonic()
+    late = lambda: time.monotonic() - t0 > 360  # 6분이 넘으면 나머지는 예전 값 유지
+    fast = {"retries": 0, "timeout": 15}
+    keep_old = lambda pack, chain: (old.get("items") or {}).get(pack, {}).get(chain)
+    complete = True
     for chain in CHAIN_LABEL:
-        if time.monotonic() - t0 > 360:  # 6분이 넘으면 나머지 편의점은 예전 값 유지
-            for pack in packs:
-                if (old.get("items") or {}).get(pack, {}).get(chain):
-                    found[pack][chain] = old["items"][pack][chain]
-            errors[f"{chain}|시간"] = "시간 초과로 건너뜀"
-            continue
-        pool = []
+        pool, broad_ok = [], 0
         for kw in BROAD_TERMS:
+            if late():
+                break
             try:
-                pool += [(c, n) for c, n in search_items(base, chain, kw) if c and n]
+                pool += [(c, n) for c, n in search_items(base, chain, kw, **fast) if c and n]
+                broad_ok += 1
             except Exception as e:
                 errors[f"{chain}|{kw}"] = str(e)
             time.sleep(0.5)
+        server_down = broad_ok == 0  # 넓은 검색이 전부 실패 → 이 편의점 검색 서버가 죽은 것
         for pack in packs:
             aliases = cfg.get("packAliases", {}).get(pack, [])
             cands = pack_candidates(pool, pack, aliases)
-            for kw in [pack, *aliases]:  # 넓은 검색에 없으면 팩 이름(과 다른 표기)으로 직접 검색
-                if cands:
-                    break
-                try:
-                    cands = pack_candidates([(c, n) for c, n in search_items(base, chain, kw) if c and n], pack, aliases)
-                except Exception as e:
-                    errors[f"{chain}|{kw}"] = str(e)
-                time.sleep(0.5)
+            if not cands and not server_down:
+                for kw in [pack, *aliases]:  # 넓은 검색에 없으면 팩 이름(과 다른 표기)으로 직접 검색
+                    if cands or late():
+                        break
+                    try:
+                        cands = pack_candidates([(c, n) for c, n in search_items(base, chain, kw, **fast) if c and n], pack, aliases)
+                    except Exception as e:
+                        errors[f"{chain}|{kw}"] = str(e)
+                    time.sleep(0.5)
             if cands:
                 code, name = cands[0]
                 found[pack][chain] = {"id": str(code), "name": name}
-            elif (old.get("items") or {}).get(pack, {}).get(chain) and not old["items"][pack][chain].get("fallback"):
-                found[pack][chain] = old["items"][pack][chain]  # 이번에 못 찾으면 예전 값 유지
+            elif keep_old(pack, chain) and (server_down or late() or not keep_old(pack, chain).get("fallback")):
+                found[pack][chain] = keep_old(pack, chain)  # 이번에 못 찾으면 예전 값 유지
             elif chain == "seveneleven":
                 # 세븐일레븐 검색 서버가 자주 죽어서, 사이트가 확장팩 이름으로 바로 재고를 찾게 해요 (이름 확인은 사이트에서)
                 found[pack][chain] = {"id": "", "name": pack, "fallback": True}
-    save_json(path, {"at": now.isoformat(timespec="seconds"), "packs": packs, "items": found, "errors": errors})
+        if server_down or late():
+            complete = False
+    # 일부 편의점이 실패했으면 3시간 뒤 다음 작업에서 다시 시도하도록 '확인 시각'을 앞당겨 저장해요
+    at = now if complete else now - timedelta(hours=PACK_CACHE_HOURS) + timedelta(hours=3)
+    save_json(path, {"at": at.isoformat(timespec="seconds"), "packs": packs, "items": found, "errors": errors})
     for pack in packs:
         got = ", ".join(f"{CHAIN_LABEL[c]}={v['name']}" for c, v in found[pack].items()) or "없음"
         print(f"[확장팩] {pack}: {got}")

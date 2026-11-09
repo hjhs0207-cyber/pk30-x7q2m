@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-10T03:31:17+09:00",
+  "checkedAt": "2026-11-10T04:38:48+09:00",
   "locations": {
     "옥수역": {
       "GS25": [
@@ -320,38 +320,24 @@
       "이마트24": [
         {
           "chain": "emart24",
-          "code": "28390",
-          "name": "공릉개미공원점",
-          "qty": 9999,
-          "distanceM": 726
-        },
-        {
-          "chain": "emart24",
           "code": "03369",
           "name": "태릉입구역점",
-          "qty": 9999,
+          "qty": 0,
           "distanceM": 874
         },
         {
           "chain": "emart24",
           "code": "07341",
           "name": "하계타운점",
-          "qty": 9999,
+          "qty": 0,
           "distanceM": 898
         },
         {
           "chain": "emart24",
-          "code": "08265",
-          "name": "과기대수림학사점",
-          "qty": 9999,
-          "distanceM": 900
-        },
-        {
-          "chain": "emart24",
-          "code": "08266",
-          "name": "과기대누리학사점",
-          "qty": 9999,
-          "distanceM": 900
+          "code": "28390",
+          "name": "공릉개미공원점",
+          "qty": 0,
+          "distanceM": 726
         }
       ]
     },
@@ -953,24 +939,24 @@
         },
         {
           "chain": "emart24",
-          "code": "22622",
-          "name": "송내동신점",
-          "qty": 0,
-          "distanceM": 749
+          "code": "30093",
+          "name": "R송내푸르지오점",
+          "qty": 9999,
+          "distanceM": 451
         },
         {
           "chain": "emart24",
           "code": "29593",
           "name": "부천송내우성점",
-          "qty": 0,
+          "qty": 9999,
           "distanceM": 558
         },
         {
           "chain": "emart24",
-          "code": "30093",
-          "name": "R송내푸르지오점",
-          "qty": 0,
-          "distanceM": 451
+          "code": "22622",
+          "name": "송내동신점",
+          "qty": 9999,
+          "distanceM": 749
         }
       ]
     }

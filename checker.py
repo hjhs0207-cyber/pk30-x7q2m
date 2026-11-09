@@ -218,7 +218,14 @@ def resolve_packs(cfg, now):
     base = cfg["apiBase"]
     found = {p: {} for p in packs}
     errors = {}
+    t0 = time.monotonic()
     for chain in CHAIN_LABEL:
+        if time.monotonic() - t0 > 360:  # 6분이 넘으면 나머지 편의점은 예전 값 유지
+            for pack in packs:
+                if (old.get("items") or {}).get(pack, {}).get(chain):
+                    found[pack][chain] = old["items"][pack][chain]
+            errors[f"{chain}|시간"] = "시간 초과로 건너뜀"
+            continue
         pool = []
         for kw in BROAD_TERMS:
             try:

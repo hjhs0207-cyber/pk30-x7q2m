@@ -32,6 +32,7 @@ ALERT_COOLDOWN_HOURS = 6   # 같은 매장은 이 시간 안에 다시 알리지
 HISTORY_DAYS = 90          # 입고 기록 보관 기간
 PACK_HISTORY_HOURS = 3     # 다른 확장팩은 이 간격으로만 확인해서 기록해요 (알림 없음)
 PACK_TIME_LIMIT_SEC = 600  # 확장팩 기록은 최대 10분만
+CHECK_TIME_LIMIT_SEC = 540 # 30주년 확인은 9분이 지나면 나머지를 건너뛰고 저장해요
 DEBUG = {}  # 조회 실패 원인을 docs/debug.json에 남겨요 (로그 대신 확인용)
 
 
@@ -48,7 +49,7 @@ def save_json(path, data):
     Path(path).write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
-def api(base, path, params, retries=1, timeout=60):
+def api(base, path, params, retries=1, timeout=25):
     qs = urllib.parse.urlencode({k: v for k, v in params.items() if v not in (None, "")})
     url = f"{base.rstrip('/')}{path}?{qs}"
     err = None
@@ -133,7 +134,11 @@ def search_items(base, chain, kw):
 def find_product(base, chain, target):
     """앱 등록명으로 먼저 찾고, 안 나오면 더 단순한 검색어로 다시 찾아요."""
     errors, seen = [], []
+    t0 = time.monotonic()
     for kw in [target] + SEARCH_FALLBACKS:
+        if time.monotonic() - t0 > 60:  # 중계 서버가 느리면 저장된 코드를 계속 써요
+            errors.append("시간 초과")
+            break
         try:
             items = [(c, n) for c, n in search_items(base, chain, kw) if c and n]
         except Exception as e:
@@ -294,7 +299,7 @@ def stock_seveneleven(cfg, product, loc):
     for kw in loc.get("sevenKeywords", []):
         try:
             d = api(cfg["apiBase"], "/api/seveneleven/inventory",
-                    {"keyword": product["name"], "storeKeyword": kw, "storeLimit": 100}, retries=3)
+                    {"keyword": product["name"], "storeKeyword": kw, "storeLimit": 100}, retries=1, timeout=20)
             if not d.get("stockAvailable", True):
                 msg = (d.get("stockError") or {}).get("message") or d.get("note") or "재고 확인 실패"
                 if "확인하지 못했습니다" in msg:  # 앱에서 '재고부족'으로 나오는 경우 → 재고 없음으로 봐요
@@ -325,14 +330,22 @@ def stock_seveneleven(cfg, product, loc):
 
 
 def collect(cfg, products):
-    """결과: {loc_id: {chain: [rows] 또는 None(조회 실패)}}"""
+    """결과: {loc_id: {chain: [rows] 또는 None(조회 실패)}}
+    중계 서버가 느려져도 GitHub 제한(15분)에 걸리지 않게, 9분이 지나면 남은 조회는 건너뛰어요."""
     results = {}
+    t0 = time.monotonic()
+    timing = DEBUG.setdefault("timing", {})
     for loc in cfg["locations"]:
         results[loc["id"]] = {}
         for chain in CHAIN_LABEL:
             if chain not in products:
                 results[loc["id"]][chain] = None
                 continue
+            if time.monotonic() - t0 > CHECK_TIME_LIMIT_SEC:
+                results[loc["id"]][chain] = None  # 시간 초과 → 이전 상태 유지, 알림 없음
+                DEBUG.setdefault("skippedForTime", []).append(f"{loc['name']}|{chain}")
+                continue
+            t1 = time.monotonic()
             try:
                 if chain == "seveneleven":
                     rows = stock_seveneleven(cfg, products[chain], loc)
@@ -345,6 +358,7 @@ def collect(cfg, products):
                 results[loc["id"]][chain] = None
                 print(f"[재고] {loc['name']} {CHAIN_LABEL[chain]} 조회 실패: {e}")
                 DEBUG.setdefault("stockErrors", {})[f"{loc['name']}|{chain}"] = str(e)
+            timing[f"{loc['name']}|{chain}"] = round(time.monotonic() - t1, 1)
             time.sleep(0.5)
     return results
 
@@ -505,10 +519,6 @@ def main():
     cache = load_json(ROOT / "docs" / "products.json", {})
     products = resolve_products(cfg, cache, now)
     save_json(ROOT / "docs" / "products.json", products)
-    try:
-        resolve_packs(cfg, now)
-    except Exception as e:
-        print(f"[확장팩] 상품 코드 찾기 실패: {e}")
 
     results = collect(cfg, products)
     old_qty = state.get("qty", {})
@@ -612,6 +622,10 @@ def main_packs():
     hpath = ROOT / "docs" / "history_packs.json"
     events = load_json(hpath, {}).get("events", [])
     pstate.pop("packHistoryAt", None)  # 이 작업은 예약된 때만 돌아서 간격 확인은 생략
+    try:
+        resolve_packs(cfg, now)  # 확장팩 상품 코드 (12시간마다) — 30주년 알림이 느려지지 않게 여기서 해요
+    except Exception as e:
+        print(f"[확장팩] 상품 코드 찾기 실패: {e}")
     record_pack_history(cfg, pstate, events, now)
     keep = (now - timedelta(days=HISTORY_DAYS)).isoformat()[:16]
     save_json(hpath, {"since": load_json(hpath, {}).get("since") or now.isoformat(timespec="minutes"),

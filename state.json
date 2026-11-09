@@ -131,7 +131,7 @@
     "cu|43075": 0,
     "seveneleven|64584": -1,
     "seveneleven|14629": -1,
-    "seveneleven|68704": -1,
+    "seveneleven|68704": 0,
     "seveneleven|55236": -1,
     "seveneleven|64557": -1,
     "seveneleven|18999": 0,
@@ -140,8 +140,8 @@
     "seveneleven|10375": -1,
     "seveneleven|16533": -1,
     "seveneleven|68257": -1,
-    "seveneleven|57621": -1,
-    "seveneleven|64441": -1,
+    "seveneleven|57621": 0,
+    "seveneleven|64441": 0,
     "seveneleven|17520": -1,
     "seveneleven|18919": 0,
     "seveneleven|51531": -1,
@@ -227,7 +227,7 @@
     "seveneleven|11217": -1,
     "seveneleven|10570": 0
   },
-  "lastRun": "2026-11-09T22:09:54+09:00",
+  "lastRun": "2026-11-09T23:24:07+09:00",
   "locStarted": [
     "gongneung",
     "jungdong",

@@ -189,12 +189,12 @@ NOT_PACK = ["슬리브", "바인더", "파일", "케이스", "띠부", "교통�
 POKEMON_BARCODES = ("8800286", "8809945", "8809581")
 
 
-def pack_candidates(items, keyword):
-    k = norm(keyword)
+def pack_candidates(items, keyword, aliases=()):
+    keys = [norm(x) for x in (keyword, *aliases)]
     out = []
     for code, name in items:
         n = norm(name)
-        if k not in n or any(w in name for w in NOT_PACK):
+        if not any(k in n for k in keys) or any(w in name for w in NOT_PACK):
             continue
         if "포켓몬" in name or str(code).startswith(POKEMON_BARCODES):
             out.append((code, name))
@@ -222,12 +222,15 @@ def resolve_packs(cfg, now):
                 errors[f"{chain}|{kw}"] = str(e)
             time.sleep(0.5)
         for pack in packs:
-            cands = pack_candidates(pool, pack)
-            if not cands:
+            aliases = cfg.get("packAliases", {}).get(pack, [])
+            cands = pack_candidates(pool, pack, aliases)
+            for kw in [pack, *aliases]:  # 넓은 검색에 없으면 팩 이름(과 다른 표기)으로 직접 검색
+                if cands:
+                    break
                 try:
-                    cands = pack_candidates([(c, n) for c, n in search_items(base, chain, pack) if c and n], pack)
+                    cands = pack_candidates([(c, n) for c, n in search_items(base, chain, kw) if c and n], pack, aliases)
                 except Exception as e:
-                    errors[f"{chain}|{pack}"] = str(e)
+                    errors[f"{chain}|{kw}"] = str(e)
                 time.sleep(0.5)
             if cands:
                 code, name = cands[0]

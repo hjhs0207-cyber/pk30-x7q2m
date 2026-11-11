@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-11T16:04:30+09:00",
+  "checkedAt": "2026-11-11T17:22:18+09:00",
   "locations": {
     "옥수역": {
       "GS25": [
@@ -82,15 +82,8 @@
           "chain": "emart24",
           "code": "25869",
           "name": "옥수하이츠점",
-          "qty": 9999,
+          "qty": 0,
           "distanceM": 124
-        },
-        {
-          "chain": "emart24",
-          "code": "27675",
-          "name": "성동금호점",
-          "qty": 9999,
-          "distanceM": 894
         }
       ]
     },
@@ -688,22 +681,36 @@
           "name": "중랑건영점",
           "qty": -1,
           "distanceM": 795
+        },
+        {
+          "chain": "seveneleven",
+          "code": "18238",
+          "name": "망우본점",
+          "qty": 0,
+          "distanceM": 913
         }
       ],
       "이마트24": [
         {
           "chain": "emart24",
-          "code": "27025",
-          "name": "상봉대광점",
-          "qty": 0,
-          "distanceM": 484
+          "code": "30072",
+          "name": "상봉역점",
+          "qty": 9999,
+          "distanceM": 144
         },
         {
           "chain": "emart24",
-          "code": "30072",
-          "name": "상봉역점",
-          "qty": 0,
-          "distanceM": 144
+          "code": "24751",
+          "name": "R상봉스타점",
+          "qty": 9999,
+          "distanceM": 273
+        },
+        {
+          "chain": "emart24",
+          "code": "27025",
+          "name": "상봉대광점",
+          "qty": 9999,
+          "distanceM": 484
         }
       ]
     },
@@ -939,24 +946,24 @@
         },
         {
           "chain": "emart24",
-          "code": "22622",
-          "name": "송내동신점",
-          "qty": 0,
-          "distanceM": 749
+          "code": "30093",
+          "name": "R송내푸르지오점",
+          "qty": 9999,
+          "distanceM": 451
         },
         {
           "chain": "emart24",
           "code": "29593",
           "name": "부천송내우성점",
-          "qty": 0,
+          "qty": 9999,
           "distanceM": 558
         },
         {
           "chain": "emart24",
-          "code": "30093",
-          "name": "R송내푸르지오점",
-          "qty": 0,
-          "distanceM": 451
+          "code": "22622",
+          "name": "송내동신점",
+          "qty": 9999,
+          "distanceM": 749
         }
       ]
     }

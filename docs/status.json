@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-11T23:52:01+09:00",
+  "checkedAt": "2026-11-12T00:47:27+09:00",
   "locations": {
     "옥수역": {
       "GS25": [
@@ -64,16 +64,16 @@
       "세븐일레븐": [
         {
           "chain": "seveneleven",
-          "code": "11217",
-          "name": "옥수2호점",
-          "qty": -1,
+          "code": "10570",
+          "name": "옥수점",
+          "qty": 0,
           "distanceM": 260
         },
         {
           "chain": "seveneleven",
-          "code": "10570",
-          "name": "옥수점",
-          "qty": 0,
+          "code": "11217",
+          "name": "옥수2호점",
+          "qty": -1,
           "distanceM": 260
         }
       ],
@@ -82,7 +82,7 @@
           "chain": "emart24",
           "code": "25869",
           "name": "옥수하이츠점",
-          "qty": 9999,
+          "qty": 0,
           "distanceM": 124
         },
         {
@@ -140,13 +140,6 @@
         },
         {
           "chain": "gs25",
-          "code": "V7Y27",
-          "name": "공릉문화점",
-          "qty": 0,
-          "distanceM": 425
-        },
-        {
-          "chain": "gs25",
           "code": "VP757",
           "name": "공릉타운점",
           "qty": 0,
@@ -172,13 +165,6 @@
           "name": "월계미성점",
           "qty": 0,
           "distanceM": 653
-        },
-        {
-          "chain": "gs25",
-          "code": "V3W68",
-          "name": "공릉중앙점",
-          "qty": 0,
-          "distanceM": 662
         },
         {
           "chain": "gs25",
@@ -932,17 +918,17 @@
       "이마트24": [
         {
           "chain": "emart24",
-          "code": "26936",
-          "name": "부천팰리스점",
-          "qty": 0,
-          "distanceM": 485
+          "code": "30771",
+          "name": "중동역점",
+          "qty": 9999,
+          "distanceM": 167
         },
         {
           "chain": "emart24",
-          "code": "30771",
-          "name": "중동역점",
-          "qty": 0,
-          "distanceM": 167
+          "code": "26936",
+          "name": "부천팰리스점",
+          "qty": 9999,
+          "distanceM": 485
         },
         {
           "chain": "emart24",

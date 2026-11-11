@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-11T18:26:57+09:00",
+  "checkedAt": "2026-11-11T19:30:25+09:00",
   "locations": {
     "옥수역": {
       "GS25": [
@@ -61,13 +61,13 @@
         }
       ],
       "CU": "조회 실패",
-      "세븐일레븐": "조회 실패",
+      "세븐일레븐": [],
       "이마트24": [
         {
           "chain": "emart24",
           "code": "25869",
           "name": "옥수하이츠점",
-          "qty": 9999,
+          "qty": 0,
           "distanceM": 124
         },
         {
@@ -216,28 +216,127 @@
         }
       ],
       "CU": "조회 실패",
-      "세븐일레븐": "조회 실패",
+      "세븐일레븐": [
+        {
+          "chain": "seveneleven",
+          "code": "64584",
+          "name": "New Wave 공릉로점",
+          "qty": -1,
+          "distanceM": 628
+        },
+        {
+          "chain": "seveneleven",
+          "code": "14629",
+          "name": "노원공릉그린점",
+          "qty": -1,
+          "distanceM": 494
+        },
+        {
+          "chain": "seveneleven",
+          "code": "68704",
+          "name": "공릉삼익점",
+          "qty": 0,
+          "distanceM": 635
+        },
+        {
+          "chain": "seveneleven",
+          "code": "55236",
+          "name": "공릉도깨비점",
+          "qty": -1,
+          "distanceM": 407
+        },
+        {
+          "chain": "seveneleven",
+          "code": "64557",
+          "name": "공릉태강점",
+          "qty": -1,
+          "distanceM": 970
+        },
+        {
+          "chain": "seveneleven",
+          "code": "18999",
+          "name": "과기대점",
+          "qty": 0,
+          "distanceM": 479
+        },
+        {
+          "chain": "seveneleven",
+          "code": "52245",
+          "name": "공릉하나점",
+          "qty": -1,
+          "distanceM": 620
+        },
+        {
+          "chain": "seveneleven",
+          "code": "18254",
+          "name": "원자력병원점",
+          "qty": -1,
+          "distanceM": 938
+        },
+        {
+          "chain": "seveneleven",
+          "code": "10375",
+          "name": "공릉점",
+          "qty": -1,
+          "distanceM": 822
+        },
+        {
+          "chain": "seveneleven",
+          "code": "16533",
+          "name": "공릉동명점",
+          "qty": -1,
+          "distanceM": 269
+        },
+        {
+          "chain": "seveneleven",
+          "code": "68257",
+          "name": "공릉풍림점",
+          "qty": -1,
+          "distanceM": 535
+        },
+        {
+          "chain": "seveneleven",
+          "code": "57621",
+          "name": "공릉라이프점",
+          "qty": 0,
+          "distanceM": 630
+        }
+      ],
       "이마트24": [
+        {
+          "chain": "emart24",
+          "code": "28390",
+          "name": "공릉개미공원점",
+          "qty": 9999,
+          "distanceM": 726
+        },
         {
           "chain": "emart24",
           "code": "03369",
           "name": "태릉입구역점",
-          "qty": 0,
+          "qty": 9999,
           "distanceM": 874
         },
         {
           "chain": "emart24",
           "code": "07341",
           "name": "하계타운점",
-          "qty": 0,
+          "qty": 9999,
           "distanceM": 898
         },
         {
           "chain": "emart24",
-          "code": "28390",
-          "name": "공릉개미공원점",
-          "qty": 0,
-          "distanceM": 726
+          "code": "08265",
+          "name": "과기대수림학사점",
+          "qty": 9999,
+          "distanceM": 900
+        },
+        {
+          "chain": "emart24",
+          "code": "08266",
+          "name": "과기대누리학사점",
+          "qty": 9999,
+          "distanceM": 900
         }
       ]
     },
@@ -825,17 +924,17 @@
       "이마트24": [
         {
           "chain": "emart24",
-          "code": "26936",
-          "name": "부천팰리스점",
-          "qty": 0,
-          "distanceM": 485
+          "code": "30771",
+          "name": "중동역점",
+          "qty": 9999,
+          "distanceM": 167
         },
         {
           "chain": "emart24",
-          "code": "30771",
-          "name": "중동역점",
-          "qty": 0,
-          "distanceM": 167
+          "code": "26936",
+          "name": "부천팰리스점",
+          "qty": 9999,
+          "distanceM": 485
         },
         {
           "chain": "emart24",

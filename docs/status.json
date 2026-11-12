@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-12T23:42:45+09:00",
+  "checkedAt": "2026-11-13T00:41:53+09:00",
   "locations": {
     "옥수역": {
       "GS25": [
@@ -64,16 +64,16 @@
       "세븐일레븐": [
         {
           "chain": "seveneleven",
-          "code": "10570",
-          "name": "옥수점",
-          "qty": 0,
+          "code": "11217",
+          "name": "옥수2호점",
+          "qty": -1,
           "distanceM": 260
         },
         {
           "chain": "seveneleven",
-          "code": "11217",
-          "name": "옥수2호점",
-          "qty": -1,
+          "code": "10570",
+          "name": "옥수점",
+          "qty": 0,
           "distanceM": 260
         }
       ],
@@ -140,6 +140,13 @@
         },
         {
           "chain": "gs25",
+          "code": "VPA53",
+          "name": "공릉문화점",
+          "qty": 0,
+          "distanceM": 424
+        },
+        {
+          "chain": "gs25",
           "code": "VP757",
           "name": "공릉타운점",
           "qty": 0,
@@ -165,6 +172,13 @@
           "name": "월계미성점",
           "qty": 0,
           "distanceM": 653
+        },
+        {
+          "chain": "gs25",
+          "code": "VPA54",
+          "name": "공릉중앙점",
+          "qty": 0,
+          "distanceM": 664
         },
         {
           "chain": "gs25",
@@ -306,38 +320,24 @@
       "이마트24": [
         {
           "chain": "emart24",
-          "code": "28390",
-          "name": "공릉개미공원점",
-          "qty": 9999,
-          "distanceM": 726
-        },
-        {
-          "chain": "emart24",
           "code": "03369",
           "name": "태릉입구역점",
-          "qty": 9999,
+          "qty": 0,
           "distanceM": 874
         },
         {
           "chain": "emart24",
           "code": "07341",
           "name": "하계타운점",
-          "qty": 9999,
+          "qty": 0,
           "distanceM": 898
         },
         {
           "chain": "emart24",
-          "code": "08265",
-          "name": "과기대수림학사점",
-          "qty": 9999,
-          "distanceM": 900
-        },
-        {
-          "chain": "emart24",
-          "code": "08266",
-          "name": "과기대누리학사점",
-          "qty": 9999,
-          "distanceM": 900
+          "code": "28390",
+          "name": "공릉개미공원점",
+          "qty": 0,
+          "distanceM": 726
         }
       ]
     },

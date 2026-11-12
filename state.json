@@ -227,7 +227,7 @@
     "seveneleven|11217": -1,
     "seveneleven|10570": 0
   },
-  "lastRun": "2026-11-12T20:27:09+09:00",
+  "lastRun": "2026-11-12T21:28:57+09:00",
   "locStarted": [
     "gongneung",
     "jungdong",
@@ -238,7 +238,5 @@
     "2bdd233319100f46",
     "683004e4ff239e11"
   ],
-  "lastAlert": {
-    "seveneleven|52348": "2026-11-10T20:48:17+09:00"
-  }
+  "lastAlert": {}
 }

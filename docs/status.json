@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-13T11:54:53+09:00",
+  "checkedAt": "2026-11-13T12:50:17+09:00",
   "locations": {
     "옥수역": {
       "GS25": [
@@ -61,7 +61,22 @@
         }
       ],
       "CU": "조회 실패",
-      "세븐일레븐": "조회 실패",
+      "세븐일레븐": [
+        {
+          "chain": "seveneleven",
+          "code": "11217",
+          "name": "옥수2호점",
+          "qty": -1,
+          "distanceM": 260
+        },
+        {
+          "chain": "seveneleven",
+          "code": "10570",
+          "name": "옥수점",
+          "qty": 0,
+          "distanceM": 260
+        }
+      ],
       "이마트24": [
         {
           "chain": "emart24",
@@ -69,11 +84,152 @@
           "name": "옥수하이츠점",
           "qty": 9999,
           "distanceM": 124
+        },
+        {
+          "chain": "emart24",
+          "code": "27675",
+          "name": "성동금호점",
+          "qty": 9999,
+          "distanceM": 894
         }
       ]
     },
     "공릉역": {
-      "GS25": "조회 실패",
+      "GS25": [
+        {
+          "chain": "gs25",
+          "code": "VHN76",
+          "name": "S공릉역점",
+          "qty": 0,
+          "distanceM": 47
+        },
+        {
+          "chain": "gs25",
+          "code": "VN110",
+          "name": "공릉역점",
+          "qty": 0,
+          "distanceM": 106
+        },
+        {
+          "chain": "gs25",
+          "code": "VHR82",
+          "name": "공릉제일점",
+          "qty": 0,
+          "distanceM": 127
+        },
+        {
+          "chain": "gs25",
+          "code": "VNP26",
+          "name": "공릉영진점",
+          "qty": 0,
+          "distanceM": 176
+        },
+        {
+          "chain": "gs25",
+          "code": "V7W56",
+          "name": "공릉대성점",
+          "qty": 0,
+          "distanceM": 227
+        },
+        {
+          "chain": "gs25",
+          "code": "VMP63",
+          "name": "공릉시장점",
+          "qty": 0,
+          "distanceM": 318
+        },
+        {
+          "chain": "gs25",
+          "code": "VPA53",
+          "name": "공릉문화점",
+          "qty": 0,
+          "distanceM": 424
+        },
+        {
+          "chain": "gs25",
+          "code": "VP757",
+          "name": "공릉타운점",
+          "qty": 0,
+          "distanceM": 488
+        },
+        {
+          "chain": "gs25",
+          "code": "V2975",
+          "name": "서울과기대점",
+          "qty": 0,
+          "distanceM": 490
+        },
+        {
+          "chain": "gs25",
+          "code": "VMB22",
+          "name": "노원공릉점",
+          "qty": 0,
+          "distanceM": 546
+        },
+        {
+          "chain": "gs25",
+          "code": "VO977",
+          "name": "월계미성점",
+          "qty": 0,
+          "distanceM": 653
+        },
+        {
+          "chain": "gs25",
+          "code": "VPA54",
+          "name": "공릉중앙점",
+          "qty": 0,
+          "distanceM": 664
+        },
+        {
+          "chain": "gs25",
+          "code": "V6W43",
+          "name": "공릉에이스점",
+          "qty": 0,
+          "distanceM": 679
+        },
+        {
+          "chain": "gs25",
+          "code": "VF914",
+          "name": "S태릉입구역점",
+          "qty": 0,
+          "distanceM": 744
+        },
+        {
+          "chain": "gs25",
+          "code": "V8Z75",
+          "name": "공릉태강점",
+          "qty": 0,
+          "distanceM": 789
+        },
+        {
+          "chain": "gs25",
+          "code": "VR095",
+          "name": "공릉원룸점",
+          "qty": 0,
+          "distanceM": 820
+        },
+        {
+          "chain": "gs25",
+          "code": "VMZ83",
+          "name": "태릉해링턴점",
+          "qty": 0,
+          "distanceM": 841
+        },
+        {
+          "chain": "gs25",
+          "code": "VW158",
+          "name": "공릉퍼스트점",
+          "qty": 0,
+          "distanceM": 915
+        },
+        {
+          "chain": "gs25",
+          "code": "VT556",
+          "name": "하계장미점",
+          "qty": 0,
+          "distanceM": 964
+        }
+      ],
       "CU": "조회 실패",
       "세븐일레븐": [
         {
@@ -469,7 +625,78 @@
         }
       ],
       "CU": "조회 실패",
-      "세븐일레븐": "조회 실패",
+      "세븐일레븐": [
+        {
+          "chain": "seveneleven",
+          "code": "64441",
+          "name": "상봉세이지움점",
+          "qty": 0,
+          "distanceM": 438
+        },
+        {
+          "chain": "seveneleven",
+          "code": "17520",
+          "name": "상봉본점",
+          "qty": -1,
+          "distanceM": 121
+        },
+        {
+          "chain": "seveneleven",
+          "code": "18919",
+          "name": "상봉점",
+          "qty": 0,
+          "distanceM": 392
+        },
+        {
+          "chain": "seveneleven",
+          "code": "51531",
+          "name": "중랑스마트빌점",
+          "qty": -1,
+          "distanceM": 684
+        },
+        {
+          "chain": "seveneleven",
+          "code": "18824",
+          "name": "상봉2점",
+          "qty": 0,
+          "distanceM": 370
+        },
+        {
+          "chain": "seveneleven",
+          "code": "68077",
+          "name": "상봉코스트코점",
+          "qty": 0,
+          "distanceM": 444
+        },
+        {
+          "chain": "seveneleven",
+          "code": "54200",
+          "name": "상봉망우점",
+          "qty": 0,
+          "distanceM": 722
+        },
+        {
+          "chain": "seveneleven",
+          "code": "17452",
+          "name": "상봉이노시티점",
+          "qty": 0,
+          "distanceM": 602
+        },
+        {
+          "chain": "seveneleven",
+          "code": "68892",
+          "name": "중랑건영점",
+          "qty": -1,
+          "distanceM": 795
+        },
+        {
+          "chain": "seveneleven",
+          "code": "18238",
+          "name": "망우본점",
+          "qty": 0,
+          "distanceM": 913
+        }
+      ],
       "이마트24": [
         {
           "chain": "emart24",

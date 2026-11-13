@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-14T05:32:43+09:00",
+  "checkedAt": "2026-11-14T06:28:55+09:00",
   "locations": {
     "옥수역": {
       "GS25": [
@@ -64,16 +64,16 @@
       "세븐일레븐": [
         {
           "chain": "seveneleven",
-          "code": "11217",
-          "name": "옥수2호점",
-          "qty": -1,
+          "code": "10570",
+          "name": "옥수점",
+          "qty": 0,
           "distanceM": 260
         },
         {
           "chain": "seveneleven",
-          "code": "10570",
-          "name": "옥수점",
-          "qty": 0,
+          "code": "11217",
+          "name": "옥수2호점",
+          "qty": -1,
           "distanceM": 260
         }
       ],
@@ -317,29 +317,7 @@
           "distanceM": 630
         }
       ],
-      "이마트24": [
-        {
-          "chain": "emart24",
-          "code": "03369",
-          "name": "태릉입구역점",
-          "qty": 0,
-          "distanceM": 874
-        },
-        {
-          "chain": "emart24",
-          "code": "07341",
-          "name": "하계타운점",
-          "qty": 0,
-          "distanceM": 898
-        },
-        {
-          "chain": "emart24",
-          "code": "28390",
-          "name": "공릉개미공원점",
-          "qty": 0,
-          "distanceM": 726
-        }
-      ]
+      "이마트24": "조회 실패"
     },
     "상봉역": {
       "GS25": [
@@ -683,22 +661,7 @@
           "distanceM": 913
         }
       ],
-      "이마트24": [
-        {
-          "chain": "emart24",
-          "code": "27025",
-          "name": "상봉대광점",
-          "qty": 0,
-          "distanceM": 484
-        },
-        {
-          "chain": "emart24",
-          "code": "30072",
-          "name": "상봉역점",
-          "qty": 0,
-          "distanceM": 144
-        }
-      ]
+      "이마트24": "조회 실패"
     },
     "중동역": {
       "GS25": [
@@ -915,43 +878,7 @@
       ],
       "CU": "조회 실패",
       "세븐일레븐": "조회 실패",
-      "이마트24": [
-        {
-          "chain": "emart24",
-          "code": "26936",
-          "name": "부천팰리스점",
-          "qty": 0,
-          "distanceM": 485
-        },
-        {
-          "chain": "emart24",
-          "code": "30771",
-          "name": "중동역점",
-          "qty": 0,
-          "distanceM": 167
-        },
-        {
-          "chain": "emart24",
-          "code": "30093",
-          "name": "R송내푸르지오점",
-          "qty": 9999,
-          "distanceM": 451
-        },
-        {
-          "chain": "emart24",
-          "code": "29593",
-          "name": "부천송내우성점",
-          "qty": 9999,
-          "distanceM": 558
-        },
-        {
-          "chain": "emart24",
-          "code": "22622",
-          "name": "송내동신점",
-          "qty": 9999,
-          "distanceM": 749
-        }
-      ]
+      "이마트24": "조회 실패"
     }
   }
 }

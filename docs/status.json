@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-14T08:06:59+09:00",
+  "checkedAt": "2026-11-14T08:48:57+09:00",
   "locations": {
     "옥수역": {
       "GS25": [
@@ -700,17 +700,24 @@
       "이마트24": [
         {
           "chain": "emart24",
-          "code": "27025",
-          "name": "상봉대광점",
-          "qty": 0,
-          "distanceM": 484
+          "code": "30072",
+          "name": "상봉역점",
+          "qty": 9999,
+          "distanceM": 144
         },
         {
           "chain": "emart24",
-          "code": "30072",
-          "name": "상봉역점",
-          "qty": 0,
-          "distanceM": 144
+          "code": "24751",
+          "name": "R상봉스타점",
+          "qty": 9999,
+          "distanceM": 273
+        },
+        {
+          "chain": "emart24",
+          "code": "27025",
+          "name": "상봉대광점",
+          "qty": 9999,
+          "distanceM": 484
         }
       ]
     },
@@ -928,7 +935,22 @@
         }
       ],
       "CU": "조회 실패",
-      "세븐일레븐": "조회 실패",
+      "세븐일레븐": [
+        {
+          "chain": "seveneleven",
+          "code": "13301",
+          "name": "부천송내엔파트점",
+          "qty": -1,
+          "distanceM": 562
+        },
+        {
+          "chain": "seveneleven",
+          "code": "16814",
+          "name": "부천중동석천로점",
+          "qty": 0,
+          "distanceM": 926
+        }
+      ],
       "이마트24": [
         {
           "chain": "emart24",

@@ -1,5 +1,5 @@
 {
-  "at": "2026-11-14T01:24:51+09:00",
+  "at": "2026-11-14T07:25:14+09:00",
   "packs": [
     "인페르노X",
     "메가브레이브",
@@ -228,8 +228,8 @@
     }
   },
   "errors": {
-    "cu|포켓몬카드": "HTTP 502",
-    "cu|포켓몬 카드": "HTTP 502",
-    "cu|포켓몬 확장팩": "HTTP 502"
+    "cu|포켓몬카드": "The read operation timed out",
+    "cu|포켓몬 카드": "The read operation timed out",
+    "cu|포켓몬 확장팩": "The read operation timed out"
   }
 }

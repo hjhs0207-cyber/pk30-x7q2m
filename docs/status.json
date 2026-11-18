@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-18T23:00:08+09:00",
+  "checkedAt": "2026-11-19T00:02:24+09:00",
   "locations": {
     "옥수역": {
       "GS25": [
@@ -220,24 +220,38 @@
       "이마트24": [
         {
           "chain": "emart24",
+          "code": "28390",
+          "name": "공릉개미공원점",
+          "qty": 9999,
+          "distanceM": 726
+        },
+        {
+          "chain": "emart24",
           "code": "03369",
           "name": "태릉입구역점",
-          "qty": 0,
+          "qty": 9999,
           "distanceM": 874
         },
         {
           "chain": "emart24",
           "code": "07341",
           "name": "하계타운점",
-          "qty": 0,
+          "qty": 9999,
           "distanceM": 898
         },
         {
           "chain": "emart24",
-          "code": "28390",
-          "name": "공릉개미공원점",
-          "qty": 0,
-          "distanceM": 726
+          "code": "08265",
+          "name": "과기대수림학사점",
+          "qty": 9999,
+          "distanceM": 900
+        },
+        {
+          "chain": "emart24",
+          "code": "08266",
+          "name": "과기대누리학사점",
+          "qty": 9999,
+          "distanceM": 900
         }
       ]
     },
@@ -549,7 +563,7 @@
           "chain": "gs25",
           "code": "VT302",
           "name": "중동뉴서울점",
-          "qty": 0,
+          "qty": 14,
           "distanceM": 192
         },
         {
@@ -577,7 +591,7 @@
           "chain": "gs25",
           "code": "VH988",
           "name": "부천팰리스점",
-          "qty": 0,
+          "qty": 14,
           "distanceM": 481
         },
         {
@@ -612,28 +626,28 @@
           "chain": "gs25",
           "code": "VEM52",
           "name": "상동소망점",
-          "qty": 0,
+          "qty": 14,
           "distanceM": 603
         },
         {
           "chain": "gs25",
           "code": "VH685",
           "name": "송내우성점",
-          "qty": 0,
+          "qty": 14,
           "distanceM": 635
         },
         {
           "chain": "gs25",
           "code": "V4168",
           "name": "송내중앙점",
-          "qty": 0,
+          "qty": 14,
           "distanceM": 717
         },
         {
           "chain": "gs25",
           "code": "VDC59",
           "name": "송내해피점",
-          "qty": 0,
+          "qty": 14,
           "distanceM": 735
         },
         {
@@ -661,7 +675,7 @@
           "chain": "gs25",
           "code": "VHD49",
           "name": "뉴송내성주로점",
-          "qty": 0,
+          "qty": 14,
           "distanceM": 795
         },
         {
@@ -703,7 +717,7 @@
           "chain": "gs25",
           "code": "VX150",
           "name": "부천상도점",
-          "qty": 0,
+          "qty": 14,
           "distanceM": 889
         },
         {

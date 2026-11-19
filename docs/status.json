@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-19T09:21:21+09:00",
+  "checkedAt": "2026-11-19T10:49:23+09:00",
   "locations": {
     "옥수역": {
       "GS25": [
@@ -529,24 +529,24 @@
       "이마트24": [
         {
           "chain": "emart24",
-          "code": "30072",
-          "name": "상봉역점",
-          "qty": 9999,
-          "distanceM": 144
-        },
-        {
-          "chain": "emart24",
           "code": "24751",
           "name": "R상봉스타점",
-          "qty": 9999,
+          "qty": 0,
           "distanceM": 273
         },
         {
           "chain": "emart24",
           "code": "27025",
           "name": "상봉대광점",
-          "qty": 9999,
+          "qty": 0,
           "distanceM": 484
+        },
+        {
+          "chain": "emart24",
+          "code": "30072",
+          "name": "상봉역점",
+          "qty": 0,
+          "distanceM": 144
         }
       ]
     },
@@ -626,7 +626,7 @@
           "chain": "gs25",
           "code": "VEM52",
           "name": "상동소망점",
-          "qty": 14,
+          "qty": 11,
           "distanceM": 603
         },
         {
@@ -717,7 +717,7 @@
           "chain": "gs25",
           "code": "VX150",
           "name": "부천상도점",
-          "qty": 14,
+          "qty": 0,
           "distanceM": 889
         },
         {

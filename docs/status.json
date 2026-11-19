@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-19T10:49:23+09:00",
+  "checkedAt": "2026-11-19T11:41:48+09:00",
   "locations": {
     "옥수역": {
       "GS25": [
@@ -345,7 +345,7 @@
           "chain": "gs25",
           "code": "VNP53",
           "name": "중화하나점",
-          "qty": 4,
+          "qty": 1,
           "distanceM": 472
         },
         {
@@ -529,24 +529,24 @@
       "이마트24": [
         {
           "chain": "emart24",
+          "code": "30072",
+          "name": "상봉역점",
+          "qty": 9999,
+          "distanceM": 144
+        },
+        {
+          "chain": "emart24",
           "code": "24751",
           "name": "R상봉스타점",
-          "qty": 0,
+          "qty": 9999,
           "distanceM": 273
         },
         {
           "chain": "emart24",
           "code": "27025",
           "name": "상봉대광점",
-          "qty": 0,
+          "qty": 9999,
           "distanceM": 484
-        },
-        {
-          "chain": "emart24",
-          "code": "30072",
-          "name": "상봉역점",
-          "qty": 0,
-          "distanceM": 144
         }
       ]
     },
@@ -647,7 +647,7 @@
           "chain": "gs25",
           "code": "VDC59",
           "name": "송내해피점",
-          "qty": 14,
+          "qty": 0,
           "distanceM": 735
         },
         {
@@ -782,24 +782,24 @@
         },
         {
           "chain": "emart24",
-          "code": "30093",
-          "name": "R송내푸르지오점",
-          "qty": 9999,
-          "distanceM": 451
+          "code": "22622",
+          "name": "송내동신점",
+          "qty": 0,
+          "distanceM": 749
         },
         {
           "chain": "emart24",
           "code": "29593",
           "name": "부천송내우성점",
-          "qty": 9999,
+          "qty": 0,
           "distanceM": 558
         },
         {
           "chain": "emart24",
-          "code": "22622",
-          "name": "송내동신점",
-          "qty": 9999,
-          "distanceM": 749
+          "code": "30093",
+          "name": "R송내푸르지오점",
+          "qty": 0,
+          "distanceM": 451
         }
       ]
     }

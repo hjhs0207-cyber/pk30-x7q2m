@@ -68,7 +68,7 @@
     "gs25|VDR73": 0,
     "gs25|VY107": 0,
     "gs25|VHT49": 0,
-    "gs25|VNP53": 1,
+    "gs25|VNP53": 0,
     "gs25|VGV64": 0,
     "gs25|V5R72": 0,
     "gs25|VS483": 0,
@@ -229,7 +229,7 @@
     "gs25|VPA53": 0,
     "gs25|VPA54": 0
   },
-  "lastRun": "2026-11-19T13:48:51+09:00",
+  "lastRun": "2026-11-19T14:50:15+09:00",
   "locStarted": [
     "gongneung",
     "jungdong",

@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-21T19:30:01+09:00",
+  "checkedAt": "2026-11-21T20:23:37+09:00",
   "locations": {
     "옥수역": {
       "GS25": [
@@ -67,15 +67,8 @@
           "chain": "emart24",
           "code": "25869",
           "name": "옥수하이츠점",
-          "qty": 9999,
+          "qty": 0,
           "distanceM": 124
-        },
-        {
-          "chain": "emart24",
-          "code": "27675",
-          "name": "성동금호점",
-          "qty": 9999,
-          "distanceM": 894
         }
       ]
     },
@@ -529,24 +522,24 @@
       "이마트24": [
         {
           "chain": "emart24",
+          "code": "30072",
+          "name": "상봉역점",
+          "qty": 9999,
+          "distanceM": 144
+        },
+        {
+          "chain": "emart24",
           "code": "24751",
           "name": "R상봉스타점",
-          "qty": 0,
+          "qty": 9999,
           "distanceM": 273
         },
         {
           "chain": "emart24",
           "code": "27025",
           "name": "상봉대광점",
-          "qty": 0,
+          "qty": 9999,
           "distanceM": 484
-        },
-        {
-          "chain": "emart24",
-          "code": "30072",
-          "name": "상봉역점",
-          "qty": 0,
-          "distanceM": 144
         }
       ]
     },
@@ -563,7 +556,7 @@
           "chain": "gs25",
           "code": "VT302",
           "name": "중동뉴서울점",
-          "qty": 4,
+          "qty": 2,
           "distanceM": 192
         },
         {
@@ -768,17 +761,17 @@
       "이마트24": [
         {
           "chain": "emart24",
-          "code": "26936",
-          "name": "부천팰리스점",
-          "qty": 20,
-          "distanceM": 485
+          "code": "30771",
+          "name": "중동역점",
+          "qty": 9999,
+          "distanceM": 167
         },
         {
           "chain": "emart24",
-          "code": "30771",
-          "name": "중동역점",
-          "qty": 0,
-          "distanceM": 167
+          "code": "26936",
+          "name": "부천팰리스점",
+          "qty": 9999,
+          "distanceM": 485
         },
         {
           "chain": "emart24",

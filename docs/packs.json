@@ -1,5 +1,5 @@
 {
-  "at": "2026-11-25T01:41:20+09:00",
+  "at": "2026-11-25T07:44:57+09:00",
   "packs": [
     "인페르노X",
     "메가브레이브",
@@ -228,8 +228,18 @@
     }
   },
   "errors": {
-    "cu|포켓몬카드": "HTTP 502",
-    "cu|포켓몬 카드": "HTTP 502",
-    "cu|포켓몬 확장팩": "HTTP 502"
+    "cu|포켓몬카드": "The read operation timed out",
+    "cu|포켓몬 카드": "The read operation timed out",
+    "cu|포켓몬 확장팩": "The read operation timed out",
+    "seveneleven|포켓몬카드": "HTTP 503",
+    "seveneleven|포켓몬 확장팩": "HTTP 503",
+    "seveneleven|메가브레이브": "HTTP 503",
+    "seveneleven|메가심포니아": "HTTP 503",
+    "seveneleven|열풍의아레나": "HTTP 503",
+    "seveneleven|블랙볼트": "HTTP 503",
+    "seveneleven|화이트플레어": "HTTP 503",
+    "emart24|포켓몬카드": "HTTP 503",
+    "emart24|포켓몬 카드": "HTTP 503",
+    "emart24|포켓몬 확장팩": "HTTP 503"
   }
 }

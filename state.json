@@ -2,7 +2,7 @@
   "qty": {
     "gs25|VI822": 0,
     "gs25|V2R46": 0,
-    "gs25|VJR95": 12,
+    "gs25|VJR95": 11,
     "gs25|VJT73": 0,
     "gs25|VP905": 0,
     "gs25|VNS26": 0,
@@ -229,7 +229,7 @@
     "gs25|VPA53": 0,
     "gs25|VPA54": 0
   },
-  "lastRun": "2026-11-25T15:48:40+09:00",
+  "lastRun": "2026-11-25T17:22:41+09:00",
   "locStarted": [
     "gongneung",
     "jungdong",

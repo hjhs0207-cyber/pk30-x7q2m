@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-26T23:56:46+09:00",
+  "checkedAt": "2026-11-27T01:01:59+09:00",
   "locations": {
     "옥수역": {
       "GS25": [
@@ -21,7 +21,7 @@
           "chain": "gs25",
           "code": "VJR95",
           "name": "금호예향점",
-          "qty": 4,
+          "qty": 0,
           "distanceM": 707
         },
         {
@@ -220,38 +220,24 @@
       "이마트24": [
         {
           "chain": "emart24",
-          "code": "28390",
-          "name": "공릉개미공원점",
-          "qty": 9999,
-          "distanceM": 726
-        },
-        {
-          "chain": "emart24",
           "code": "03369",
           "name": "태릉입구역점",
-          "qty": 9999,
+          "qty": 0,
           "distanceM": 874
         },
         {
           "chain": "emart24",
           "code": "07341",
           "name": "하계타운점",
-          "qty": 9999,
+          "qty": 0,
           "distanceM": 898
         },
         {
           "chain": "emart24",
-          "code": "08265",
-          "name": "과기대수림학사점",
-          "qty": 9999,
-          "distanceM": 900
-        },
-        {
-          "chain": "emart24",
-          "code": "08266",
-          "name": "과기대누리학사점",
-          "qty": 9999,
-          "distanceM": 900
+          "code": "28390",
+          "name": "공릉개미공원점",
+          "qty": 0,
+          "distanceM": 726
         }
       ]
     },
@@ -529,24 +515,24 @@
       "이마트24": [
         {
           "chain": "emart24",
-          "code": "30072",
-          "name": "상봉역점",
-          "qty": 9999,
-          "distanceM": 144
-        },
-        {
-          "chain": "emart24",
           "code": "24751",
           "name": "R상봉스타점",
-          "qty": 9999,
+          "qty": 0,
           "distanceM": 273
         },
         {
           "chain": "emart24",
           "code": "27025",
           "name": "상봉대광점",
-          "qty": 9999,
+          "qty": 0,
           "distanceM": 484
+        },
+        {
+          "chain": "emart24",
+          "code": "30072",
+          "name": "상봉역점",
+          "qty": 0,
+          "distanceM": 144
         }
       ]
     },
